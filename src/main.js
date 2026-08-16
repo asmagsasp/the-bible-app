@@ -1,6 +1,6 @@
 import '/src/styles/main.css';
 import { BIBLE_BOOKS, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite, searchBibleText } from './services/bibleData.js';
-import { getAIHomilyReflection, speakText, stopAudio, isAudioPlaying } from './services/homilyService.js';
+import { getAIHomilyReflection, speakText, stopAudio, isAudioPlaying, unlockAudioContext } from './services/homilyService.js';
 import { getReadingPlan, toggleDayCompleted, getPlanProgressPercentage } from './services/planService.js';
 import { initNativeFeatures, triggerHapticFeedback, shareContent, showNativeToast } from './services/nativeService.js';
 
@@ -360,6 +360,7 @@ function openHomilyModal(ref, text) {
 
 // BARRA DE ÁUDIO DE LEITURA
 function startAudioTrack(title, textToSpeak) {
+  unlockAudioContext();
   const audioBar = document.getElementById('audioPlayerBar');
   const trackEl = document.getElementById('audioTrackTitle');
   if (trackEl) trackEl.textContent = title;

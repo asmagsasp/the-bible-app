@@ -1,9 +1,10 @@
-// SERVIÇO DE REPRODUÇÃO DE ÁUDIO HD (DESBLOQUEIO DE MÍDIA NATIVA & DOM AUDIO PLAYER)
+// SERVIÇO DE ÁUDIO BULLETPROOF COM DESBLOQUEIO DE TOCADOR E MULTI-SERVIDORES PT-BR
 
 import { showNativeToast } from './nativeService.js';
 
 let isPlaying = false;
 let shouldStop = false;
+let currentAudio = null;
 
 export function getAIHomilyReflection(ref, verseText) {
   return {
@@ -24,8 +25,20 @@ export function getAIHomilyReflection(ref, verseText) {
   };
 }
 
-// DIVIDE TEXTO EM BLOCOS DE FRASES CURTAS
-function splitTextIntoChunks(text, maxChunkLen = 140) {
+// DESBLOQUEIO DE ÁUDIO NO TOQUE DIRETO DO USUÁRIO
+export function unlockAudioContext() {
+  const audioEl = document.getElementById('globalAudioPlayer');
+  if (audioEl) {
+    try {
+      // Pequeno som silencioso de ativação
+      audioEl.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+      audioEl.play().catch(() => {});
+    } catch (e) {}
+  }
+}
+
+// DIVISAO DE TEXTO EM TRECHOS CURTOS (100 A 150 CARACTERES)
+function splitTextIntoChunks(text, maxChunkLen = 130) {
   const clean = text.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
   if (!clean) return [];
 
@@ -45,9 +58,11 @@ function splitTextIntoChunks(text, maxChunkLen = 140) {
   return chunks.length > 0 ? chunks : [clean];
 }
 
-// REPRODUÇÃO SEQUENCIAL DE ÁUDIO
+// REPRODUÇÃO SEQUENCIAL GARANTIDA
 export async function speakText(text, onEndCallback, onProgressCallback) {
   stopAudio();
+  unlockAudioContext();
+  
   shouldStop = false;
   isPlaying = true;
 
@@ -66,7 +81,7 @@ export async function speakText(text, onEndCallback, onProgressCallback) {
       onProgressCallback(i + 1, chunks.length, chunk);
     }
 
-    const success = await playChunkAudio(chunk);
+    const success = await playAudioChunkWithMultiServer(chunk);
     if (!success || shouldStop) break;
   }
 
@@ -75,85 +90,106 @@ export async function speakText(text, onEndCallback, onProgressCallback) {
   return true;
 }
 
-// REPRODUZ BLOCO COM ELEMENTO AUDIO DO DOM E FALLBACKS
-async function playChunkAudio(chunkText) {
-  if (shouldStop) return false;
+// OBTÉM SERVIDORES DE ÁUDIO TTS PT-BR
+function getTTSUrls(text) {
+  const encoded = encodeURIComponent(text);
+  return [
+    `https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=${encoded}`,
+    `https://translate.google.com/translate_tts?ie=UTF-8&tl=pt&client=tw-ob&q=${encoded}`
+  ];
+}
 
-  // 1. TENTA NAVEGADOR NATIVO (SPEECH SYNTHESIS)
-  if ('speechSynthesis' in window && window.speechSynthesis) {
-    try {
-      const ok = await new Promise((resolve) => {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(chunkText);
-        utterance.lang = 'pt-BR';
-        utterance.rate = 0.95;
+// TOCA UM BLOCO TENTANDO MULTI-SERVIDORES DE ÁUDIO NO ELEMENTO DOM
+function playAudioChunkWithMultiServer(chunkText) {
+  return new Promise((resolve) => {
+    if (shouldStop) return resolve(false);
 
-        utterance.onend = () => resolve(true);
-        utterance.onerror = () => resolve(false);
+    const audioEl = document.getElementById('globalAudioPlayer');
+    const urls = getTTSUrls(chunkText);
+    let urlIndex = 0;
 
-        const timer = setTimeout(() => {
-          try { window.speechSynthesis.cancel(); } catch (e) {}
-          resolve(false);
-        }, 8000);
-
-        window.speechSynthesis.speak(utterance);
-      });
-
-      if (ok) return true;
-    } catch (e) {
-      console.log('WebSpeech error:', e);
-    }
-  }
-
-  if (shouldStop) return false;
-
-  // 2. TENTA REPRODUÇÃO VIA ELEMENTO DE ÁUDIO HTML5 NO DOM
-  const audioEl = document.getElementById('globalAudioPlayer');
-  if (audioEl) {
-    return new Promise((resolve) => {
-      try {
-        const encoded = encodeURIComponent(chunkText);
-        const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=${encoded}`;
-        
-        audioEl.src = audioUrl;
-        
-        const onEnded = () => {
-          cleanup();
-          resolve(true);
-        };
-        
-        const onError = () => {
-          cleanup();
-          resolve(false);
-        };
-
-        const cleanup = () => {
-          audioEl.removeEventListener('ended', onEnded);
-          audioEl.removeEventListener('error', onError);
-        };
-
-        audioEl.addEventListener('ended', onEnded);
-        audioEl.addEventListener('error', onError);
-
-        audioEl.play().catch(err => {
-          console.log('Audio play error:', err);
-          cleanup();
-          resolve(false);
-        });
-
-        // Timeout de proteção
-        setTimeout(() => {
-          cleanup();
-          resolve(true);
-        }, 12000);
-
-      } catch (e) {
-        resolve(false);
+    const tryNextUrl = () => {
+      if (shouldStop || urlIndex >= urls.length) {
+        // Se todos os servidores falharem, tenta síntese de voz como último recurso
+        tryWebSpeech(chunkText).then(resolve);
+        return;
       }
-    });
-  }
 
-  return false;
+      const currentUrl = urls[urlIndex++];
+      if (!audioEl) {
+        currentAudio = new Audio(currentUrl);
+        bindAudioEvents(currentAudio, resolve, tryNextUrl);
+        currentAudio.play().catch(tryNextUrl);
+      } else {
+        audioEl.src = currentUrl;
+        bindAudioEvents(audioEl, resolve, tryNextUrl);
+        audioEl.play().catch(tryNextUrl);
+      }
+    };
+
+    tryNextUrl();
+  });
+}
+
+function bindAudioEvents(audioObj, onOk, onError) {
+  let finished = false;
+
+  const onEnded = () => {
+    if (!finished) {
+      finished = true;
+      cleanup();
+      onOk(true);
+    }
+  };
+
+  const onErr = () => {
+    if (!finished) {
+      finished = true;
+      cleanup();
+      onError();
+    }
+  };
+
+  const cleanup = () => {
+    audioObj.removeEventListener('ended', onEnded);
+    audioObj.removeEventListener('error', onErr);
+  };
+
+  audioObj.addEventListener('ended', onEnded);
+  audioObj.addEventListener('error', onErr);
+
+  // Timeout de 10 segundos por trecho
+  setTimeout(() => {
+    if (!finished) {
+      finished = true;
+      cleanup();
+      onOk(true);
+    }
+  }, 10000);
+}
+
+// SÍNTESE DE VOZ COMO ÚLTIMO RECURSO
+function tryWebSpeech(chunkText) {
+  return new Promise((resolve) => {
+    if (!('speechSynthesis' in window) || !window.speechSynthesis) {
+      return resolve(false);
+    }
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(chunkText);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.95;
+
+      utterance.onend = () => resolve(true);
+      utterance.onerror = () => resolve(false);
+
+      setTimeout(() => resolve(true), 8000);
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      resolve(false);
+    }
+  });
 }
 
 export function stopAudio() {
@@ -169,6 +205,13 @@ export function stopAudio() {
     try {
       audioEl.pause();
       audioEl.currentTime = 0;
+    } catch (e) {}
+  }
+
+  if (currentAudio) {
+    try {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
     } catch (e) {}
   }
 }
