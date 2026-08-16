@@ -365,9 +365,17 @@ function startAudioTrack(title, textToSpeak) {
   if (trackEl) trackEl.textContent = title;
   if (audioBar) audioBar.classList.remove('hidden');
 
-  speakText(textToSpeak, () => {
-    if (audioBar) audioBar.classList.add('hidden');
-  });
+  speakText(
+    textToSpeak,
+    () => {
+      if (audioBar) audioBar.classList.add('hidden');
+    },
+    (currentChunk, totalChunks) => {
+      if (trackEl) {
+        trackEl.textContent = `${title} (${currentChunk}/${totalChunks})`;
+      }
+    }
+  );
 }
 
 // TROCA DE VIEWS (ROUTING MOBILE)

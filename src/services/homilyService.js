@@ -1,10 +1,11 @@
-// SERVIÇO DE HOMILIA E LEITOR DE ÁUDIO NATIVO E HD (CAPACITOR TTS + SPEECH SYNTHESIS + STREAMELEMENTS HD AUDIO)
+// SERVIÇO DE ÁUDIO ROBUTO COM DIVISÃO DE FRASES (TEXT CHUNKING) E SUPORTE COMPLETO A ANDROID E IOS
 
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { showNativeToast } from './nativeService.js';
 
-let currentAudio = null;
 let isPlaying = false;
+let shouldStop = false;
+let currentAudio = null;
 
 export function getAIHomilyReflection(ref, verseText) {
   return {
@@ -25,91 +26,129 @@ export function getAIHomilyReflection(ref, verseText) {
   };
 }
 
-export async function speakText(text, onEndCallback) {
+// DIVISOR INTELIGENTE DE TEXTO LONGO EM FRASES CURTAS PARA ANDROID/IOS
+function splitTextIntoChunks(text, maxChunkLen = 180) {
+  const clean = text.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+  if (!clean) return [];
+
+  // Divide por pontuação ou trechos curtos
+  const sentences = clean.match(/[^.!?;:]+[.!?;:]+/g) || [clean];
+  const chunks = [];
+  let current = '';
+
+  for (const sentence of sentences) {
+    if ((current + ' ' + sentence).length > maxChunkLen) {
+      if (current.trim()) chunks.push(current.trim());
+      current = sentence;
+    } else {
+      current += ' ' + sentence;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.length > 0 ? chunks : [clean];
+}
+
+// REPRODUÇÃO DE ÁUDIO POR BLOCOS DE FRASES
+export async function speakText(text, onEndCallback, onProgressCallback) {
   stopAudio();
-
-  const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
-  if (!cleanText) return false;
-
+  shouldStop = false;
   isPlaying = true;
 
-  // NÍVEL 1: Plugin Nativo do Capacitor TextToSpeech (Android/iOS Native Engine)
+  const chunks = splitTextIntoChunks(text);
+  if (chunks.length === 0) {
+    isPlaying = false;
+    if (onEndCallback) onEndCallback();
+    return false;
+  }
+
+  for (let i = 0; i < chunks.length; i++) {
+    if (shouldStop) break;
+
+    const chunk = chunks[i];
+    if (onProgressCallback) {
+      onProgressCallback(i + 1, chunks.length, chunk);
+    }
+
+    const success = await playSingleChunk(chunk);
+    if (!success || shouldStop) break;
+  }
+
+  isPlaying = false;
+  if (onEndCallback) onEndCallback();
+  return true;
+}
+
+// REPRODUZ UM ÚNICO BLOCO COM MULTI-MOTOR (CAPACITOR NATIVE -> WEBSPEECH -> STREAMELEMENTS)
+async function playSingleChunk(chunkText) {
+  if (shouldStop) return false;
+
+  // 1. TENTA CAPACITOR NATIVE TEXT-TO-SPEECH
   try {
     await TextToSpeech.speak({
-      text: cleanText,
+      text: chunkText,
       lang: 'pt-BR',
       rate: 1.0,
       pitch: 1.0,
       volume: 1.0,
       category: 'ambient'
     });
-    isPlaying = false;
-    if (onEndCallback) onEndCallback();
     return true;
   } catch (errNative) {
-    console.log('TextToSpeech nativo não disponível, tentando WebSpeech ou HD Audio...', errNative);
+    console.log('TTS Nativo indisponível para o trecho, tentando WebSpeech...', errNative);
   }
 
-  // NÍVEL 2: API Web Speech Synthesis
+  if (shouldStop) return false;
+
+  // 2. TENTA SPEECH SYNTHESIS NAVEGADOR
   if ('speechSynthesis' in window && window.speechSynthesis) {
     try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 0.95;
+      const isOk = await new Promise((resolve) => {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(chunkText);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.95;
 
-      utterance.onend = () => {
-        isPlaying = false;
-        if (onEndCallback) onEndCallback();
-      };
+        utterance.onend = () => resolve(true);
+        utterance.onerror = () => resolve(false);
 
-      utterance.onerror = () => {
-        playStreamElementsTTS(cleanText, onEndCallback);
-      };
+        // Timeout de segurança
+        const timer = setTimeout(() => {
+          window.speechSynthesis.cancel();
+          resolve(false);
+        }, 12000);
 
-      window.speechSynthesis.speak(utterance);
-      return true;
+        window.speechSynthesis.speak(utterance);
+      });
+
+      if (isOk) return true;
     } catch (e) {
-      console.log('SpeechSynthesis falhou:', e);
+      console.log('WebSpeech error:', e);
     }
   }
 
-  // NÍVEL 3: Fallback de Áudio StreamElements HD (CORS liberado, voz pt-BR sem bloqueios)
-  return playStreamElementsTTS(cleanText, onEndCallback);
-}
+  if (shouldStop) return false;
 
-function playStreamElementsTTS(text, onEndCallback) {
-  try {
-    const snippet = text.length > 250 ? text.substring(0, 250) : text;
-    const encodedText = encodeURIComponent(snippet);
-    const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=${encodedText}`;
-    
-    currentAudio = new Audio(audioUrl);
-    currentAudio.play().then(() => {
-      isPlaying = true;
-    }).catch(e => {
-      console.log('Erro ao tocar áudio:', e);
-      isPlaying = false;
-      showNativeToast('Leitura de voz iniciada.');
-    });
+  // 3. FALLBACK DE ÁUDIO STREAMELEMENTS (HD AUDIO STREAM)
+  return new Promise((resolve) => {
+    try {
+      const encoded = encodeURIComponent(chunkText);
+      const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=${encoded}`;
+      
+      currentAudio = new Audio(audioUrl);
+      currentAudio.play().catch(() => resolve(false));
 
-    currentAudio.onended = () => {
-      isPlaying = false;
-      if (onEndCallback) onEndCallback();
-    };
-
-    currentAudio.onerror = () => {
-      isPlaying = false;
-    };
-
-    return true;
-  } catch (err) {
-    isPlaying = false;
-    return false;
-  }
+      currentAudio.onended = () => resolve(true);
+      currentAudio.onerror = () => resolve(false);
+    } catch (e) {
+      resolve(false);
+    }
+  });
 }
 
 export function stopAudio() {
+  shouldStop = true;
+  isPlaying = false;
+
   try {
     TextToSpeech.stop();
   } catch (e) {}
@@ -124,8 +163,6 @@ export function stopAudio() {
       currentAudio.currentTime = 0;
     } catch (e) {}
   }
-
-  isPlaying = false;
 }
 
 export function isAudioPlaying() {
