@@ -13,8 +13,8 @@ const state = {
   theme: localStorage.getItem('avemaria_theme') || 'navy'
 };
 
-// INICIALIZAÇÃO DO APP
-document.addEventListener('DOMContentLoaded', () => {
+// INICIALIZAÇÃO DO APP (MÓDULO ES)
+function initApp() {
   initNativeFeatures();
   applyTheme(state.theme);
   renderHeroVerse();
@@ -22,7 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   renderGallery();
   renderPlan();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ALTERAR TEMA (Navy -> OLED -> Sepia -> Light -> Navy)
 function applyTheme(themeName) {
@@ -50,23 +56,33 @@ function cycleTheme() {
 // RENDEREIZAR HERO - VERSÍCULO DO DIA
 function renderHeroVerse() {
   const v = getVerseOfTheDay();
-  document.getElementById('heroText').textContent = `"${v.text}"`;
-  document.getElementById('heroRef').textContent = v.ref;
+  const heroTextEl = document.getElementById('heroText');
+  const heroRefEl = document.getElementById('heroRef');
   
-  document.getElementById('btnHeroShare').onclick = () => {
-    triggerHapticFeedback();
-    shareContent('Versículo do Dia - Bíblia Ave Maria', `"${v.text}" (${v.ref})`, 'https://bibliasagradaavemaria.com.br');
-  };
+  if (heroTextEl) heroTextEl.textContent = `"${v.text}"`;
+  if (heroRefEl) heroRefEl.textContent = v.ref;
+  
+  const shareBtn = document.getElementById('btnHeroShare');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      triggerHapticFeedback();
+      shareContent('Versículo do Dia - Bíblia Ave Maria', `"${v.text}" (${v.ref})`, 'https://bibliasagradaavemaria.com.br');
+    };
+  }
 
-  document.getElementById('btnHeroHomily').onclick = () => {
-    triggerHapticFeedback();
-    openHomilyModal(v.ref, v.text);
-  };
+  const homilyBtn = document.getElementById('btnHeroHomily');
+  if (homilyBtn) {
+    homilyBtn.onclick = () => {
+      triggerHapticFeedback();
+      openHomilyModal(v.ref, v.text);
+    };
+  }
 }
 
 // RENDERIZAR GRADE DE LIVROS (73 LIVROS AVE MARIA)
 function renderBooksGrid() {
   const container = document.getElementById('booksGrid');
+  if (!container) return;
   container.innerHTML = '';
 
   const filtered = BIBLE_BOOKS.filter(b => {
@@ -96,8 +112,10 @@ function openBookReader(book) {
   state.currentChapter = 1;
   
   switchView('viewReader');
-  document.getElementById('readerTitle').textContent = book.name;
-  document.getElementById('readerSubtitle').textContent = `${book.chapters} Capítulos (${book.testament === 1 ? 'Antigo Testamento' : 'Novo Testamento'})`;
+  const titleEl = document.getElementById('readerTitle');
+  const subEl = document.getElementById('readerSubtitle');
+  if (titleEl) titleEl.textContent = book.name;
+  if (subEl) subEl.textContent = `${book.chapters} Capítulos (${book.testament === 1 ? 'Antigo Testamento' : 'Novo Testamento'})`;
 
   renderChaptersGrid(book.chapters);
   renderChapterVerses(book.id, 1);
@@ -106,6 +124,7 @@ function openBookReader(book) {
 // RENDERIZAR BOTOES DE CAPÍTULOS
 function renderChaptersGrid(totalChapters) {
   const grid = document.getElementById('chaptersGrid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   for (let i = 1; i <= totalChapters; i++) {
@@ -127,10 +146,13 @@ function renderChaptersGrid(totalChapters) {
 function renderChapterVerses(bookId, chapterNum) {
   const verses = getChapterVerses(bookId, chapterNum);
   const container = document.getElementById('versesList');
+  if (!container) return;
   container.innerHTML = '';
 
-  document.getElementById('readerControls').classList.remove('hidden');
-  document.getElementById('chapterNavBar').classList.remove('hidden');
+  const ctrlEl = document.getElementById('readerControls');
+  const navEl = document.getElementById('chapterNavBar');
+  if (ctrlEl) ctrlEl.classList.remove('hidden');
+  if (navEl) navEl.classList.remove('hidden');
 
   verses.forEach((vText, index) => {
     const verseNum = index + 1;
@@ -188,8 +210,10 @@ function renderChapterVerses(bookId, chapterNum) {
   });
 
   // Atualiza navegação de botões Anterior/Próximo
-  document.getElementById('btnPrevChapter').disabled = (chapterNum <= 1);
-  document.getElementById('btnNextChapter').disabled = (chapterNum >= state.currentBook.chapters);
+  const prevBtn = document.getElementById('btnPrevChapter');
+  const nextBtn = document.getElementById('btnNextChapter');
+  if (prevBtn) prevBtn.disabled = (chapterNum <= 1);
+  if (nextBtn) nextBtn.disabled = (chapterNum >= state.currentBook.chapters);
 }
 
 // NAVEGAÇÃO ENTRE CAPÍTULOS
@@ -208,6 +232,7 @@ function navigateChapter(delta) {
 // RENDERIZAR GALERIA DE MEDITAÇÃO
 function renderGallery() {
   const container = document.getElementById('galleryGrid');
+  if (!container) return;
   container.innerHTML = '';
 
   const galleryItems = [
@@ -243,11 +268,14 @@ function renderGallery() {
 function renderPlan() {
   const planDays = getReadingPlan();
   const container = document.getElementById('planDaysList');
+  if (!container) return;
   container.innerHTML = '';
 
   const pct = getPlanProgressPercentage();
-  document.getElementById('planProgressFill').style.width = `${pct}%`;
-  document.getElementById('planProgressText').textContent = `${pct}% concluído (${planDays.filter(d => d.completed).length}/365 dias)`;
+  const fillEl = document.getElementById('planProgressFill');
+  const txtEl = document.getElementById('planProgressText');
+  if (fillEl) fillEl.style.width = `${pct}%`;
+  if (txtEl) txtEl.textContent = `${pct}% concluído (${planDays.filter(d => d.completed).length}/365 dias)`;
 
   // Renderiza os primeiros 30 dias para alta performance
   planDays.slice(0, 30).forEach(day => {
@@ -276,6 +304,7 @@ function renderPlan() {
 function renderFavorites() {
   const favorites = getFavorites();
   const container = document.getElementById('favoritesList');
+  if (!container) return;
   container.innerHTML = '';
 
   if (favorites.length === 0) {
@@ -299,27 +328,33 @@ function renderFavorites() {
 // MODAL HOMILIA IA
 function openHomilyModal(ref, text) {
   const homily = getAIHomilyReflection(ref, text);
-  document.getElementById('homilyModalRef').textContent = homily.reference;
-  document.getElementById('homilyModalBody').innerHTML = homily.body;
+  const refEl = document.getElementById('homilyModalRef');
+  const bodyEl = document.getElementById('homilyModalBody');
+  if (refEl) refEl.textContent = homily.reference;
+  if (bodyEl) bodyEl.innerHTML = homily.body;
   
   const modal = document.getElementById('homilyModal');
-  modal.classList.add('active');
+  if (modal) modal.classList.add('active');
 
-  document.getElementById('btnSpeakHomily').onclick = () => {
-    triggerHapticFeedback();
-    startAudioTrack(`Homilia sobre ${homily.reference}`, homily.body);
-    modal.classList.remove('active');
-  };
+  const speakBtn = document.getElementById('btnSpeakHomily');
+  if (speakBtn) {
+    speakBtn.onclick = () => {
+      triggerHapticFeedback();
+      startAudioTrack(`Homilia sobre ${homily.reference}`, homily.body);
+      if (modal) modal.classList.remove('active');
+    };
+  }
 }
 
 // BARRA DE ÁUDIO DE LEITURA
 function startAudioTrack(title, textToSpeak) {
   const audioBar = document.getElementById('audioPlayerBar');
-  document.getElementById('audioTrackTitle').textContent = title;
-  audioBar.classList.remove('hidden');
+  const trackEl = document.getElementById('audioTrackTitle');
+  if (trackEl) trackEl.textContent = title;
+  if (audioBar) audioBar.classList.remove('hidden');
 
   speakText(textToSpeak, () => {
-    audioBar.classList.add('hidden');
+    if (audioBar) audioBar.classList.add('hidden');
   });
 }
 
@@ -328,12 +363,23 @@ function switchView(targetViewId) {
   const views = ['viewHome', 'viewReader', 'viewGallery', 'viewPlan', 'viewFavorites', 'viewSearch'];
   views.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.classList.toggle('hidden', id !== targetViewId);
+    if (el) {
+      if (id === targetViewId) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
   });
 
   // Atualiza botões da navegação inferior
   document.querySelectorAll('.nav-item').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-target') === targetViewId);
+    const target = btn.getAttribute('data-target');
+    if (target === targetViewId) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
   });
 
   if (targetViewId === 'viewFavorites') renderFavorites();
@@ -345,67 +391,100 @@ function switchView(targetViewId) {
 // SETUP DE LISTENERS DA INTERFACE
 function setupEventListeners() {
   // Troca de Tema
-  document.getElementById('btnThemeToggle').onclick = cycleTheme;
+  const themeToggleBtn = document.getElementById('btnThemeToggle');
+  if (themeToggleBtn) themeToggleBtn.onclick = cycleTheme;
 
   // Botões do Modal Pix / Doação
   const donateModal = document.getElementById('donateModal');
-  document.getElementById('btnDonateHeader').onclick = () => {
-    triggerHapticFeedback();
-    donateModal.classList.add('active');
-  };
-  document.getElementById('btnCloseDonate').onclick = () => donateModal.classList.remove('active');
+  const donateHeaderBtn = document.getElementById('btnDonateHeader');
+  if (donateHeaderBtn && donateModal) {
+    donateHeaderBtn.onclick = () => {
+      triggerHapticFeedback();
+      donateModal.classList.add('active');
+    };
+  }
   
-  document.getElementById('btnCopyPix').onclick = () => {
-    triggerHapticFeedback();
-    const pix = document.getElementById('pixKeyText').textContent;
-    navigator.clipboard.writeText(pix);
-    showNativeToast('Chave Pix copiada com sucesso!');
-  };
+  const closeDonateBtn = document.getElementById('btnCloseDonate');
+  if (closeDonateBtn && donateModal) {
+    closeDonateBtn.onclick = () => donateModal.classList.remove('active');
+  }
+  
+  const copyPixBtn = document.getElementById('btnCopyPix');
+  if (copyPixBtn) {
+    copyPixBtn.onclick = () => {
+      triggerHapticFeedback();
+      const pixKeyTextEl = document.getElementById('pixKeyText');
+      if (pixKeyTextEl) {
+        navigator.clipboard.writeText(pixKeyTextEl.textContent);
+        showNativeToast('Chave Pix copiada com sucesso!');
+      }
+    };
+  }
 
   // Botão Fechar Modal Homilia
-  document.getElementById('btnCloseHomily').onclick = () => {
-    document.getElementById('homilyModal').classList.remove('active');
-  };
+  const closeHomilyBtn = document.getElementById('btnCloseHomily');
+  const homilyModal = document.getElementById('homilyModal');
+  if (closeHomilyBtn && homilyModal) {
+    closeHomilyBtn.onclick = () => homilyModal.classList.remove('active');
+  }
 
   // Botão Parar Áudio
-  document.getElementById('btnStopAudio').onclick = () => {
-    triggerHapticFeedback();
-    stopAudio();
-    document.getElementById('audioPlayerBar').classList.add('hidden');
-  };
+  const stopAudioBtn = document.getElementById('btnStopAudio');
+  if (stopAudioBtn) {
+    stopAudioBtn.onclick = () => {
+      triggerHapticFeedback();
+      stopAudio();
+      const bar = document.getElementById('audioPlayerBar');
+      if (bar) bar.classList.add('hidden');
+    };
+  }
 
   // Botões de Tamanho de Fonte
-  document.getElementById('btnFontPlus').onclick = () => {
-    triggerHapticFeedback();
-    if (state.currentVerseFontSize < 1.8) {
-      state.currentVerseFontSize += 0.1;
-      document.querySelectorAll('.verse-item').forEach(v => v.style.fontSize = `${state.currentVerseFontSize}rem`);
-    }
-  };
-  document.getElementById('btnFontMinus').onclick = () => {
-    triggerHapticFeedback();
-    if (state.currentVerseFontSize > 0.8) {
-      state.currentVerseFontSize -= 0.1;
-      document.querySelectorAll('.verse-item').forEach(v => v.style.fontSize = `${state.currentVerseFontSize}rem`);
-    }
-  };
+  const fontPlusBtn = document.getElementById('btnFontPlus');
+  const fontMinusBtn = document.getElementById('btnFontMinus');
+  if (fontPlusBtn) {
+    fontPlusBtn.onclick = () => {
+      triggerHapticFeedback();
+      if (state.currentVerseFontSize < 1.8) {
+        state.currentVerseFontSize += 0.1;
+        document.querySelectorAll('.verse-item').forEach(v => v.style.fontSize = `${state.currentVerseFontSize}rem`);
+      }
+    };
+  }
+  if (fontMinusBtn) {
+    fontMinusBtn.onclick = () => {
+      triggerHapticFeedback();
+      if (state.currentVerseFontSize > 0.8) {
+        state.currentVerseFontSize -= 0.1;
+        document.querySelectorAll('.verse-item').forEach(v => v.style.fontSize = `${state.currentVerseFontSize}rem`);
+      }
+    };
+  }
 
   // Navegação entre capítulos
-  document.getElementById('btnPrevChapter').onclick = () => navigateChapter(-1);
-  document.getElementById('btnNextChapter').onclick = () => navigateChapter(1);
-  document.getElementById('btnBackToHome').onclick = () => {
-    triggerHapticFeedback();
-    switchView('viewHome');
-  };
+  const prevChapterBtn = document.getElementById('btnPrevChapter');
+  const nextChapterBtn = document.getElementById('btnNextChapter');
+  const backToHomeBtn = document.getElementById('btnBackToHome');
+  if (prevChapterBtn) prevChapterBtn.onclick = () => navigateChapter(-1);
+  if (nextChapterBtn) nextChapterBtn.onclick = () => navigateChapter(1);
+  if (backToHomeBtn) {
+    backToHomeBtn.onclick = () => {
+      triggerHapticFeedback();
+      switchView('viewHome');
+    };
+  }
 
   // Ouvir Capítulo inteiro
-  document.getElementById('btnListenChapter').onclick = () => {
-    if (!state.currentBook) return;
-    triggerHapticFeedback();
-    const verses = getChapterVerses(state.currentBook.id, state.currentChapter);
-    const fullText = verses.join('. ');
-    startAudioTrack(`${state.currentBook.name} Capitulo ${state.currentChapter}`, fullText);
-  };
+  const listenChapterBtn = document.getElementById('btnListenChapter');
+  if (listenChapterBtn) {
+    listenChapterBtn.onclick = () => {
+      if (!state.currentBook) return;
+      triggerHapticFeedback();
+      const verses = getChapterVerses(state.currentBook.id, state.currentChapter);
+      const fullText = verses.join('. ');
+      startAudioTrack(`${state.currentBook.name} Capitulo ${state.currentChapter}`, fullText);
+    };
+  }
 
   // Abas de Testamento (Todos, Antigo, Novo)
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -420,40 +499,49 @@ function setupEventListeners() {
 
   // Bottom Navigation Bar
   document.querySelectorAll('.nav-item').forEach(btn => {
-    btn.onclick = () => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
       triggerHapticFeedback();
       const target = btn.getAttribute('data-target');
-      switchView(target);
-    };
+      if (target) {
+        switchView(target);
+      }
+    });
   });
 
   // Busca em Tempo Real
   const searchInput = document.getElementById('searchInput');
-  searchInput.oninput = (e) => {
-    const query = e.target.value.trim().toLowerCase();
-    if (query.length < 2) {
-      if (!document.getElementById('viewSearch').classList.contains('hidden')) {
-        switchView('viewHome');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      if (query.length < 2) {
+        const searchView = document.getElementById('viewSearch');
+        if (searchView && !searchView.classList.contains('hidden')) {
+          switchView('viewHome');
+        }
+        return;
       }
-      return;
-    }
 
-    switchView('viewSearch');
-    const container = document.getElementById('searchResultsList');
-    container.innerHTML = '';
+      switchView('viewSearch');
+      const container = document.getElementById('searchResultsList');
+      if (!container) return;
+      container.innerHTML = '';
 
-    const matchedBooks = BIBLE_BOOKS.filter(b => b.name.toLowerCase().includes(query) || b.abbrev.toLowerCase().includes(query));
-    document.getElementById('searchSubtitle').textContent = `Encontrados ${matchedBooks.length} livro(s) com "${query}"`;
+      const matchedBooks = BIBLE_BOOKS.filter(b => b.name.toLowerCase().includes(query) || b.abbrev.toLowerCase().includes(query));
+      const searchSub = document.getElementById('searchSubtitle');
+      if (searchSub) searchSub.textContent = `Encontrados ${matchedBooks.length} livro(s) com "${query}"`;
 
-    matchedBooks.forEach(b => {
-      const item = document.createElement('div');
-      item.className = 'verse-item';
-      item.innerHTML = `
-        <div style="font-weight: 700; color: var(--accent-gold); font-size: 1rem;">${b.name} (${b.abbrev})</div>
-        <div style="font-size: 0.8rem; color: var(--text-secondary);">${b.chapters} capítulos • ${b.category}</div>
-      `;
-      item.onclick = () => openBookReader(b);
-      container.appendChild(item);
+      matchedBooks.forEach(b => {
+        const item = document.createElement('div');
+        item.className = 'verse-item';
+        item.style.cursor = 'pointer';
+        item.innerHTML = `
+          <div style="font-weight: 700; color: var(--accent-gold); font-size: 1rem;">${b.name} (${b.abbrev})</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">${b.chapters} capítulos • ${b.category}</div>
+        `;
+        item.onclick = () => openBookReader(b);
+        container.appendChild(item);
+      });
     });
-  };
+  }
 }

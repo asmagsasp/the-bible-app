@@ -81,6 +81,11 @@
   --nav-bg: rgba(255, 255, 255, 0.95);
 }
 
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
 /* Base Reset */
 *, *::before, *::after {
   box-sizing: border-box;
