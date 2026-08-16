@@ -47,10 +47,20 @@ public class MainActivity extends BridgeActivity {
     public class NativeTTSBridge {
         @JavascriptInterface
         public void speak(String text) {
+            speakWithLang(text, "pt");
+        }
+
+        @JavascriptInterface
+        public void speakWithLang(String text, String lang) {
             if (tts != null && text != null) {
-                if (!isTtsReady) {
-                    tts.setLanguage(new Locale("pt", "BR"));
+                Locale locale = new Locale("pt", "BR");
+                if ("en".equalsIgnoreCase(lang)) {
+                    locale = new Locale("en", "US");
+                } else if ("es".equalsIgnoreCase(lang)) {
+                    locale = new Locale("es", "ES");
                 }
+
+                tts.setLanguage(locale);
                 tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "BibliaUtterance_" + System.currentTimeMillis());
             }
         }

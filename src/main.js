@@ -1,8 +1,9 @@
 import '/src/styles/main.css';
-import { BIBLE_BOOKS, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite, searchBibleText } from './services/bibleData.js';
+import { getBibleBooks, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite, searchBibleText } from './services/bibleData.js';
 import { getAIHomilyReflection, speakText, stopAudio, isAudioPlaying, unlockAudioContext } from './services/homilyService.js';
 import { getReadingPlan, toggleDayCompleted, getPlanProgressPercentage } from './services/planService.js';
 import { initNativeFeatures, triggerHapticFeedback, shareContent, showNativeToast } from './services/nativeService.js';
+import { getLanguage, setLanguage, t } from './services/i18n.js';
 
 // ESTADO GLOBAL DA APLICAÇÃO
 const state = {
@@ -17,6 +18,7 @@ const state = {
 function initApp() {
   initNativeFeatures();
   applyTheme(state.theme);
+  updateUILS();
   renderHeroVerse();
   renderBooksGrid();
   setupEventListeners();
@@ -53,6 +55,70 @@ function cycleTheme() {
   showNativeToast(`Tema alterado para: ${themes[nextIdx].toUpperCase()}`);
 }
 
+// ATUALIZAÇÃO DINÂMICA DE INTERFACE POR IDIOMA (i18n)
+function updateUILS() {
+  const currentLang = getLanguage();
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-lang') === currentLang);
+  });
+
+  const headerTitle = document.querySelector('.header-title');
+  if (headerTitle) headerTitle.textContent = t('appTitle');
+  
+  const headerSub = document.querySelector('.header-subtitle');
+  if (headerSub) headerSub.textContent = t('appSubtitle');
+
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.placeholder = t('searchPlaceholder');
+
+  const searchTitle = document.querySelector('#viewSearch .view-header-title');
+  if (searchTitle) searchTitle.textContent = t('searchTitle');
+
+  const searchSub = document.getElementById('searchSubtitle');
+  if (searchSub) searchSub.textContent = t('searchSubtitle');
+
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  if (tabBtns.length >= 3) {
+    tabBtns[0].textContent = t('navBooks');
+    tabBtns[1].textContent = t('oldTestament');
+    tabBtns[2].textContent = t('newTestament');
+  }
+
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    const target = item.getAttribute('data-target');
+    const label = item.querySelector('.nav-label');
+    if (label) {
+      if (target === 'viewHome') label.textContent = t('navBooks');
+      if (target === 'viewPlan') label.textContent = t('navPlan');
+      if (target === 'viewFavorites') label.textContent = t('navFavorites');
+      if (target === 'viewGallery') label.textContent = t('navGallery');
+      if (target === 'viewSearch') label.textContent = t('navSearch');
+    }
+  });
+
+  const heroReadBtn = document.getElementById('btnHeroRead');
+  if (heroReadBtn) heroReadBtn.innerHTML = `<i class="fas fa-book-open"></i> ${t('readChapter')}`;
+
+  const heroDonateBtn = document.getElementById('btnHeroDonate');
+  if (heroDonateBtn) heroDonateBtn.innerHTML = `<i class="fas fa-hand-holding-heart"></i> ${t('donateTitle')}`;
+
+  const listenCapBtn = document.getElementById('btnListenChapter');
+  if (listenCapBtn) listenCapBtn.innerHTML = `<i class="fas fa-volume-high"></i> ${t('listenChapter')}`;
+
+  const homilyCapBtn = document.getElementById('btnChapterHomily');
+  if (homilyCapBtn) homilyCapBtn.innerHTML = `<i class="fas fa-cross"></i> ${t('reflectionAI')}`;
+
+  const favTitle = document.querySelector('#viewFavorites .view-header-title');
+  if (favTitle) favTitle.textContent = t('favoritesTitle');
+
+  const planTitle = document.querySelector('#viewPlan .view-header-title');
+  if (planTitle) planTitle.textContent = t('readingPlanTitle');
+
+  const planSub = document.querySelector('#viewPlan .view-header-subtitle');
+  if (planSub) planSub.textContent = t('readingPlanSub');
+}
+
 // RENDEREIZAR HERO - VERSÍCULO DO DIA
 function renderHeroVerse() {
   const v = getVerseOfTheDay();
@@ -60,13 +126,13 @@ function renderHeroVerse() {
   const heroRefEl = document.getElementById('heroRef');
   
   if (heroTextEl) heroTextEl.textContent = `"${v.text}"`;
-  if (heroRefEl) heroRefEl.textContent = v.ref;
+  if (heroRefEl) heroRefEl.textContent = v.reference;
   
   const shareBtn = document.getElementById('btnHeroShare');
   if (shareBtn) {
     shareBtn.onclick = () => {
       triggerHapticFeedback();
-      shareContent('Versículo do Dia - Bíblia Ave Maria', `"${v.text}" (${v.ref})`, 'https://bibliasagradaavemaria.com.br');
+      shareContent('Versículo do Dia - Bíblia Ave Maria', `"${v.text}" (${v.reference})`, 'https://bibliasagradaavemaria.com.br');
     };
   }
 
@@ -74,18 +140,19 @@ function renderHeroVerse() {
   if (homilyBtn) {
     homilyBtn.onclick = () => {
       triggerHapticFeedback();
-      openHomilyModal(v.ref, v.text);
+      openHomilyModal(v.reference, v.text);
     };
   }
 }
 
-// RENDERIZAR GRADE DE LIVROS (73 LIVROS AVE MARIA)
+// RENDERIZAR GRADE DE LIVROS (73 LIVROS TRILÍNGUES)
 function renderBooksGrid() {
   const container = document.getElementById('booksGrid');
   if (!container) return;
   container.innerHTML = '';
 
-  const filtered = BIBLE_BOOKS.filter(b => {
+  const books = getBibleBooks();
+  const filtered = books.filter(b => {
     if (state.currentTestament === 0) return true;
     return b.testament === state.currentTestament;
   });
@@ -96,7 +163,7 @@ function renderBooksGrid() {
     card.innerHTML = `
       <span class="book-abbrev">${book.abbrev}</span>
       <div class="book-name">${book.name}</div>
-      <div class="book-chapters-count">${book.chapters} capítulos • ${book.category}</div>
+      <div class="book-chapters-count">${book.chapters} cap. • ${book.category}</div>
     `;
     card.onclick = () => {
       triggerHapticFeedback();
@@ -411,6 +478,27 @@ function switchView(targetViewId) {
 
 // SETUP DE LISTENERS DA INTERFACE
 function setupEventListeners() {
+  // Seletor de Idiomas (PT, EN, ES)
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.onclick = () => {
+      triggerHapticFeedback();
+      const lang = btn.getAttribute('data-lang');
+      setLanguage(lang);
+      
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      updateUILS();
+      renderHeroVerse();
+      renderBooksGrid();
+      if (state.currentBook) {
+        const books = getBibleBooks();
+        const updatedBook = books.find(b => b.id === state.currentBook.id) || books[0];
+        openBookReader(updatedBook, state.currentChapter);
+      }
+    };
+  });
+
   // Troca de Tema
   const themeToggleBtn = document.getElementById('btnThemeToggle');
   if (themeToggleBtn) themeToggleBtn.onclick = cycleTheme;

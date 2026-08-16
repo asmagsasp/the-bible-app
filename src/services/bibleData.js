@@ -1,198 +1,106 @@
-// BÍBLIA SAGRADA EDIÇÃO CATÓLICA - AVE MARIA (73 LIVROS COMPLETOS)
+// BÍBLIA SAGRADA EDIÇÃO CATÓLICA TRILÍNGUE (PORTUGUÊS 🇧🇷, INGLÊS 🇺🇸, ESPANHOL 🇪🇸) - 73 LIVROS COMPLETOS
 
-export const BIBLE_BOOKS = [
+import { getLanguage } from './i18n.js';
+
+export const RAW_BIBLE_BOOKS = [
   // ANTIGO TESTAMENTO (46 Livros)
-  { id: 'gn', name: 'Gênesis', abbrev: 'Gn', testament: 1, chapters: 50, category: 'Pentateuco' },
-  { id: 'ex', name: 'Êxodo', abbrev: 'Êx', testament: 1, chapters: 40, category: 'Pentateuco' },
-  { id: 'lv', name: 'Levítico', abbrev: 'Lv', testament: 1, chapters: 27, category: 'Pentateuco' },
-  { id: 'nm', name: 'Números', abbrev: 'Nm', testament: 1, chapters: 36, category: 'Pentateuco' },
-  { id: 'dt', name: 'Deuteronômio', abbrev: 'Dt', testament: 1, chapters: 34, category: 'Pentateuco' },
-  { id: 'js', name: 'Josué', abbrev: 'Js', testament: 1, chapters: 24, category: 'Históricos' },
-  { id: 'jz', name: 'Juízes', abbrev: 'Jz', testament: 1, chapters: 21, category: 'Históricos' },
-  { id: 'rt', name: 'Rute', abbrev: 'Rt', testament: 1, chapters: 4, category: 'Históricos' },
-  { id: '1sm', name: '1 Samuel', abbrev: '1Sm', testament: 1, chapters: 31, category: 'Históricos' },
-  { id: '2sm', name: '2 Samuel', abbrev: '2Sm', testament: 1, chapters: 24, category: 'Históricos' },
-  { id: '1rs', name: '1 Reis', abbrev: '1Rs', testament: 1, chapters: 22, category: 'Históricos' },
-  { id: '2rs', name: '2 Reis', abbrev: '2Rs', testament: 1, chapters: 25, category: 'Históricos' },
-  { id: '1cr', name: '1 Crônicas', abbrev: '1Cr', testament: 1, chapters: 29, category: 'Históricos' },
-  { id: '2cr', name: '2 Crônicas', abbrev: '2Cr', testament: 1, chapters: 36, category: 'Históricos' },
-  { id: 'esd', name: 'Esdras', abbrev: 'Esd', testament: 1, chapters: 10, category: 'Históricos' },
-  { id: 'ne', name: 'Neemias', abbrev: 'Ne', testament: 1, chapters: 13, category: 'Históricos' },
-  { id: 'tb', name: 'Tobias', abbrev: 'Tb', testament: 1, chapters: 14, category: 'Deuterocanônicos' },
-  { id: 'jdt', name: 'Judite', abbrev: 'Jdt', testament: 1, chapters: 16, category: 'Deuterocanônicos' },
-  { id: 'est', name: 'Ester', abbrev: 'Est', testament: 1, chapters: 10, category: 'Históricos' },
-  { id: '1mc', name: '1 Macabeus', abbrev: '1Mc', testament: 1, chapters: 16, category: 'Deuterocanônicos' },
-  { id: '2mc', name: '2 Macabeus', abbrev: '2Mc', testament: 1, chapters: 15, category: 'Deuterocanônicos' },
-  { id: 'jo', name: 'Jó', abbrev: 'Jó', testament: 1, chapters: 42, category: 'Poéticos' },
-  { id: 'sl', name: 'Salmos', abbrev: 'Sl', testament: 1, chapters: 150, category: 'Poéticos' },
-  { id: 'pv', name: 'Provérbios', abbrev: 'Pv', testament: 1, chapters: 31, category: 'Poéticos' },
-  { id: 'ec', name: 'Eclesiastes', abbrev: 'Ec', testament: 1, chapters: 12, category: 'Poéticos' },
-  { id: 'ct', name: 'Cântico dos Cânticos', abbrev: 'Ct', testament: 1, chapters: 8, category: 'Poéticos' },
-  { id: 'sb', name: 'Sabedoria', abbrev: 'Sb', testament: 1, chapters: 19, category: 'Deuterocanônicos' },
-  { id: 'ecli', name: 'Eclesiástico (Sirácida)', abbrev: 'Ecli', testament: 1, chapters: 51, category: 'Deuterocanônicos' },
-  { id: 'is', name: 'Isaías', abbrev: 'Is', testament: 1, chapters: 66, category: 'Profetas Maiores' },
-  { id: 'jr', name: 'Jeremias', abbrev: 'Jr', testament: 1, chapters: 52, category: 'Profetas Maiores' },
-  { id: 'lm', name: 'Lamentações', abbrev: 'Lm', testament: 1, chapters: 5, category: 'Profetas Maiores' },
-  { id: 'bar', name: 'Baruc', abbrev: 'Bar', testament: 1, chapters: 6, category: 'Deuterocanônicos' },
-  { id: 'ez', name: 'Ezequiel', abbrev: 'Ez', testament: 1, chapters: 48, category: 'Profetas Maiores' },
-  { id: 'dn', name: 'Daniel', abbrev: 'Dn', testament: 1, chapters: 14, category: 'Profetas Maiores' },
-  { id: 'os', name: 'Oseias', abbrev: 'Os', testament: 1, chapters: 14, category: 'Profetas Menores' },
-  { id: 'jl', name: 'Joel', abbrev: 'Jl', testament: 1, chapters: 4, category: 'Profetas Menores' },
-  { id: 'am', name: 'Amós', abbrev: 'Am', testament: 1, chapters: 9, category: 'Profetas Menores' },
-  { id: 'ab', name: 'Abdias', abbrev: 'Ab', testament: 1, chapters: 1, category: 'Profetas Menores' },
-  { id: 'jn', name: 'Jonas', abbrev: 'Jn', testament: 1, chapters: 4, category: 'Profetas Menores' },
-  { id: 'mq', name: 'Miqueias', abbrev: 'Mq', testament: 1, chapters: 7, category: 'Profetas Menores' },
-  { id: 'na', name: 'Naum', abbrev: 'Na', testament: 1, chapters: 3, category: 'Profetas Menores' },
-  { id: 'hab', name: 'Habacuc', abbrev: 'Hab', testament: 1, chapters: 3, category: 'Profetas Menores' },
-  { id: 'sof', name: 'Sofonias', abbrev: 'Sof', testament: 1, chapters: 3, category: 'Profetas Menores' },
-  { id: 'ag', name: 'Ageu', abbrev: 'Ag', testament: 1, chapters: 2, category: 'Profetas Menores' },
-  { id: 'zc', name: 'Zacarias', abbrev: 'Zc', testament: 1, chapters: 14, category: 'Profetas Menores' },
-  { id: 'mal', name: 'Malaquias', abbrev: 'Mal', testament: 1, chapters: 3, category: 'Profetas Menores' },
+  { id: 'gn', testament: 1, chapters: 50, pt: { name: 'Gênesis', abbrev: 'Gn', category: 'Pentateuco' }, en: { name: 'Genesis', abbrev: 'Gen', category: 'Pentateuch' }, es: { name: 'Génesis', abbrev: 'Gn', category: 'Pentateuco' } },
+  { id: 'ex', testament: 1, chapters: 40, pt: { name: 'Êxodo', abbrev: 'Êx', category: 'Pentateuco' }, en: { name: 'Exodus', abbrev: 'Exod', category: 'Pentateuch' }, es: { name: 'Éxodo', abbrev: 'Éx', category: 'Pentateuco' } },
+  { id: 'lv', testament: 1, chapters: 27, pt: { name: 'Levítico', abbrev: 'Lv', category: 'Pentateuco' }, en: { name: 'Leviticus', abbrev: 'Lev', category: 'Pentateuch' }, es: { name: 'Levítico', abbrev: 'Lv', category: 'Pentateuco' } },
+  { id: 'nm', testament: 1, chapters: 36, pt: { name: 'Números', abbrev: 'Nm', category: 'Pentateuco' }, en: { name: 'Numbers', abbrev: 'Num', category: 'Pentateuch' }, es: { name: 'Números', abbrev: 'Nm', category: 'Pentateuco' } },
+  { id: 'dt', testament: 1, chapters: 34, pt: { name: 'Deuteronômio', abbrev: 'Dt', category: 'Pentateuco' }, en: { name: 'Deuteronomy', abbrev: 'Deut', category: 'Pentateuch' }, es: { name: 'Deuteronomio', abbrev: 'Dt', category: 'Pentateuco' } },
+  { id: 'js', testament: 1, chapters: 24, pt: { name: 'Josué', abbrev: 'Js', category: 'Históricos' }, en: { name: 'Joshua', abbrev: 'Josh', category: 'Historical' }, es: { name: 'Josué', abbrev: 'Jos', category: 'Históricos' } },
+  { id: 'jz', testament: 1, chapters: 21, pt: { name: 'Juízes', abbrev: 'Jz', category: 'Históricos' }, en: { name: 'Judges', abbrev: 'Judg', category: 'Historical' }, es: { name: 'Jueces', abbrev: 'Jue', category: 'Históricos' } },
+  { id: 'rt', testament: 1, chapters: 4, pt: { name: 'Rute', abbrev: 'Rt', category: 'Históricos' }, en: { name: 'Ruth', abbrev: 'Ruth', category: 'Historical' }, es: { name: 'Rut', abbrev: 'Rut', category: 'Históricos' } },
+  { id: '1sm', testament: 1, chapters: 31, pt: { name: '1 Samuel', abbrev: '1Sm', category: 'Históricos' }, en: { name: '1 Samuel', abbrev: '1Sam', category: 'Historical' }, es: { name: '1 Samuel', abbrev: '1Sam', category: 'Históricos' } },
+  { id: '2sm', testament: 1, chapters: 24, pt: { name: '2 Samuel', abbrev: '2Sm', category: 'Históricos' }, en: { name: '2 Samuel', abbrev: '2Sam', category: 'Historical' }, es: { name: '2 Samuel', abbrev: '2Sam', category: 'Históricos' } },
+  { id: '1rs', testament: 1, chapters: 22, pt: { name: '1 Reis', abbrev: '1Rs', category: 'Históricos' }, en: { name: '1 Kings', abbrev: '1Kgs', category: 'Historical' }, es: { name: '1 Reyes', abbrev: '1Reyes', category: 'Históricos' } },
+  { id: '2rs', testament: 1, chapters: 25, pt: { name: '2 Reis', abbrev: '2Rs', category: 'Históricos' }, en: { name: '2 Kings', abbrev: '2Kgs', category: 'Historical' }, es: { name: '2 Reyes', abbrev: '2Reyes', category: 'Históricos' } },
+  { id: '1cr', testament: 1, chapters: 29, pt: { name: '1 Crônicas', abbrev: '1Cr', category: 'Históricos' }, en: { name: '1 Chronicles', abbrev: '1Chr', category: 'Historical' }, es: { name: '1 Crónicas', abbrev: '1Crón', category: 'Históricos' } },
+  { id: '2cr', testament: 1, chapters: 36, pt: { name: '2 Crônicas', abbrev: '2Cr', category: 'Históricos' }, en: { name: '2 Chronicles', abbrev: '2Chr', category: 'Historical' }, es: { name: '2 Crónicas', abbrev: '2Crón', category: 'Históricos' } },
+  { id: 'esd', testament: 1, chapters: 10, pt: { name: 'Esdras', abbrev: 'Esd', category: 'Históricos' }, en: { name: 'Ezra', abbrev: 'Ezra', category: 'Historical' }, es: { name: 'Esdras', abbrev: 'Esd', category: 'Históricos' } },
+  { id: 'ne', testament: 1, chapters: 13, pt: { name: 'Neemias', abbrev: 'Ne', category: 'Históricos' }, en: { name: 'Nehemiah', abbrev: 'Neh', category: 'Historical' }, es: { name: 'Nehemías', abbrev: 'Neh', category: 'Históricos' } },
+  { id: 'tb', testament: 1, chapters: 14, pt: { name: 'Tobias', abbrev: 'Tb', category: 'Deuterocanônicos' }, en: { name: 'Tobit', abbrev: 'Tob', category: 'Deuterocanonical' }, es: { name: 'Tobías', abbrev: 'Tob', category: 'Deuterocanónicos' } },
+  { id: 'jdt', testament: 1, chapters: 16, pt: { name: 'Judite', abbrev: 'Jdt', category: 'Deuterocanônicos' }, en: { name: 'Judith', abbrev: 'Jdt', category: 'Deuterocanonical' }, es: { name: 'Judit', abbrev: 'Jdt', category: 'Deuterocanónicos' } },
+  { id: 'est', testament: 1, chapters: 10, pt: { name: 'Ester', abbrev: 'Est', category: 'Históricos' }, en: { name: 'Esther', abbrev: 'Esth', category: 'Historical' }, es: { name: 'Ester', abbrev: 'Est', category: 'Históricos' } },
+  { id: '1mc', testament: 1, chapters: 16, pt: { name: '1 Macabeus', abbrev: '1Mc', category: 'Deuterocanônicos' }, en: { name: '1 Maccabees', abbrev: '1Macc', category: 'Deuterocanonical' }, es: { name: '1 Macabeos', abbrev: '1Mac', category: 'Deuterocanónicos' } },
+  { id: '2mc', testament: 1, chapters: 15, pt: { name: '2 Macabeus', abbrev: '2Mc', category: 'Deuterocanônicos' }, en: { name: '2 Maccabees', abbrev: '2Macc', category: 'Deuterocanonical' }, es: { name: '2 Macabeos', abbrev: '2Mac', category: 'Deuterocanónicos' } },
+  { id: 'jo', testament: 1, chapters: 42, pt: { name: 'Jó', abbrev: 'Jó', category: 'Poéticos' }, en: { name: 'Job', abbrev: 'Job', category: 'Wisdom & Poetry' }, es: { name: 'Job', abbrev: 'Job', category: 'Poéticos' } },
+  { id: 'sl', testament: 1, chapters: 150, pt: { name: 'Salmos', abbrev: 'Sl', category: 'Poéticos' }, en: { name: 'Psalms', abbrev: 'Ps', category: 'Wisdom & Poetry' }, es: { name: 'Salmos', abbrev: 'Sal', category: 'Poéticos' } },
+  { id: 'pv', testament: 1, chapters: 31, pt: { name: 'Provérbios', abbrev: 'Pv', category: 'Poéticos' }, en: { name: 'Proverbs', abbrev: 'Prov', category: 'Wisdom & Poetry' }, es: { name: 'Proverbios', abbrev: 'Prov', category: 'Poéticos' } },
+  { id: 'ec', testament: 1, chapters: 12, pt: { name: 'Eclesiastes', abbrev: 'Ec', category: 'Poéticos' }, en: { name: 'Ecclesiastes', abbrev: 'Eccl', category: 'Wisdom & Poetry' }, es: { name: 'Eclesiastés', abbrev: 'Ecl', category: 'Poéticos' } },
+  { id: 'ct', testament: 1, chapters: 8, pt: { name: 'Cântico dos Cânticos', abbrev: 'Ct', category: 'Poéticos' }, en: { name: 'Song of Songs', abbrev: 'Song', category: 'Wisdom & Poetry' }, es: { name: 'Cantar de los Cantares', abbrev: 'Cant', category: 'Poéticos' } },
+  { id: 'sb', testament: 1, chapters: 19, pt: { name: 'Sabedoria', abbrev: 'Sb', category: 'Deuterocanônicos' }, en: { name: 'Wisdom', abbrev: 'Wis', category: 'Deuterocanonical' }, es: { name: 'Sabiduría', abbrev: 'Sab', category: 'Deuterocanónicos' } },
+  { id: 'ecli', testament: 1, chapters: 51, pt: { name: 'Eclesiástico (Sirácida)', abbrev: 'Ecli', category: 'Deuterocanônicos' }, en: { name: 'Sirach (Ecclesiasticus)', abbrev: 'Sir', category: 'Deuterocanonical' }, es: { name: 'Eclesiástico (Sirácida)', abbrev: 'Ecli', category: 'Deuterocanónicos' } },
+  { id: 'is', testament: 1, chapters: 66, pt: { name: 'Isaías', abbrev: 'Is', category: 'Profetas Maiores' }, en: { name: 'Isaiah', abbrev: 'Isa', category: 'Major Prophets' }, es: { name: 'Isaías', abbrev: 'Is', category: 'Profetas Mayores' } },
+  { id: 'jr', testament: 1, chapters: 52, pt: { name: 'Jeremias', abbrev: 'Jr', category: 'Profetas Maiores' }, en: { name: 'Jeremiah', abbrev: 'Jer', category: 'Major Prophets' }, es: { name: 'Jeremías', abbrev: 'Jer', category: 'Profetas Mayores' } },
+  { id: 'lm', testament: 1, chapters: 5, pt: { name: 'Lamentações', abbrev: 'Lm', category: 'Profetas Maiores' }, en: { name: 'Lamentations', abbrev: 'Lam', category: 'Major Prophets' }, es: { name: 'Lamentaciones', abbrev: 'Lam', category: 'Profetas Mayores' } },
+  { id: 'bar', testament: 1, chapters: 6, pt: { name: 'Baruc', abbrev: 'Bar', category: 'Deuterocanônicos' }, en: { name: 'Baruch', abbrev: 'Bar', category: 'Deuterocanonical' }, es: { name: 'Baruc', abbrev: 'Bar', category: 'Deuterocanónicos' } },
+  { id: 'ez', testament: 1, chapters: 48, pt: { name: 'Ezequiel', abbrev: 'Ez', category: 'Profetas Maiores' }, en: { name: 'Ezekiel', abbrev: 'Ezek', category: 'Major Prophets' }, es: { name: 'Ezequiel', abbrev: 'Ez', category: 'Profetas Mayores' } },
+  { id: 'dn', testament: 1, chapters: 14, pt: { name: 'Daniel', abbrev: 'Dn', category: 'Profetas Maiores' }, en: { name: 'Daniel', abbrev: 'Dan', category: 'Major Prophets' }, es: { name: 'Daniel', abbrev: 'Dan', category: 'Profetas Mayores' } },
+  { id: 'os', testament: 1, chapters: 14, pt: { name: 'Oseias', abbrev: 'Os', category: 'Profetas Menores' }, en: { name: 'Hosea', abbrev: 'Hos', category: 'Minor Prophets' }, es: { name: 'Oseas', abbrev: 'Os', category: 'Profetas Menores' } },
+  { id: 'jl', testament: 1, chapters: 4, pt: { name: 'Joel', abbrev: 'Jl', category: 'Profetas Menores' }, en: { name: 'Joel', abbrev: 'Joel', category: 'Minor Prophets' }, es: { name: 'Joel', abbrev: 'Jl', category: 'Profetas Menores' } },
+  { id: 'am', testament: 1, chapters: 9, pt: { name: 'Amós', abbrev: 'Am', category: 'Profetas Menores' }, en: { name: 'Amos', abbrev: 'Amos', category: 'Minor Prophets' }, es: { name: 'Amós', abbrev: 'Am', category: 'Profetas Menores' } },
+  { id: 'ab', testament: 1, chapters: 1, pt: { name: 'Abdias', abbrev: 'Ab', category: 'Profetas Menores' }, en: { name: 'Obadiah', abbrev: 'Obad', category: 'Minor Prophets' }, es: { name: 'Abdías', abbrev: 'Abd', category: 'Profetas Menores' } },
+  { id: 'jn', testament: 1, chapters: 4, pt: { name: 'Jonas', abbrev: 'Jn', category: 'Profetas Menores' }, en: { name: 'Jonah', abbrev: 'Jonah', category: 'Minor Prophets' }, es: { name: 'Jonás', abbrev: 'Jon', category: 'Profetas Menores' } },
+  { id: 'mq', testament: 1, chapters: 7, pt: { name: 'Miqueias', abbrev: 'Mq', category: 'Profetas Menores' }, en: { name: 'Micah', abbrev: 'Mic', category: 'Minor Prophets' }, es: { name: 'Miqueas', abbrev: 'Miq', category: 'Profetas Menores' } },
+  { id: 'na', testament: 1, chapters: 3, pt: { name: 'Naum', abbrev: 'Na', category: 'Profetas Menores' }, en: { name: 'Nahum', abbrev: 'Nah', category: 'Minor Prophets' }, es: { name: 'Nahúm', abbrev: 'Nah', category: 'Profetas Menores' } },
+  { id: 'hab', testament: 1, chapters: 3, pt: { name: 'Habacuc', abbrev: 'Hab', category: 'Profetas Menores' }, en: { name: 'Habakkuk', abbrev: 'Hab', category: 'Minor Prophets' }, es: { name: 'Habacuc', abbrev: 'Hab', category: 'Profetas Menores' } },
+  { id: 'sof', testament: 1, chapters: 3, pt: { name: 'Sofonias', abbrev: 'Sof', category: 'Profetas Menores' }, en: { name: 'Zephaniah', abbrev: 'Zeph', category: 'Minor Prophets' }, es: { name: 'Sofonías', abbrev: 'Sof', category: 'Profetas Menores' } },
+  { id: 'ag', testament: 1, chapters: 2, pt: { name: 'Ageu', abbrev: 'Ag', category: 'Profetas Menores' }, en: { name: 'Haggai', abbrev: 'Hag', category: 'Minor Prophets' }, es: { name: 'Ageo', abbrev: 'Ag', category: 'Profetas Menores' } },
+  { id: 'zc', testament: 1, chapters: 14, pt: { name: 'Zacarias', abbrev: 'Zc', category: 'Profetas Menores' }, en: { name: 'Zechariah', abbrev: 'Zech', category: 'Minor Prophets' }, es: { name: 'Zacarías', abbrev: 'Zac', category: 'Profetas Menores' } },
+  { id: 'mal', testament: 1, chapters: 3, pt: { name: 'Malaquias', abbrev: 'Mal', category: 'Profetas Menores' }, en: { name: 'Malachi', abbrev: 'Mal', category: 'Minor Prophets' }, es: { name: 'Malaquías', abbrev: 'Mal', category: 'Profetas Menores' } },
 
   // NOVO TESTAMENTO (27 Livros)
-  { id: 'mt', name: 'São Mateus', abbrev: 'Mt', testament: 2, chapters: 28, category: 'Evangelhos' },
-  { id: 'mc', name: 'São Marcos', abbrev: 'Mc', testament: 2, chapters: 16, category: 'Evangelhos' },
-  { id: 'lc', name: 'São Lucas', abbrev: 'Lc', testament: 2, chapters: 24, category: 'Evangelhos' },
-  { id: 'joa', name: 'São João', abbrev: 'Jo', testament: 2, chapters: 21, category: 'Evangelhos' },
-  { id: 'at', name: 'Atos dos Apóstolos', abbrev: 'At', testament: 2, chapters: 28, category: 'Histórico' },
-  { id: 'rm', name: 'Romanos', abbrev: 'Rm', testament: 2, chapters: 16, category: 'Cartas Paulinas' },
-  { id: '1cor', name: '1 Coríntios', abbrev: '1Cor', testament: 2, chapters: 16, category: 'Cartas Paulinas' },
-  { id: '2cor', name: '2 Coríntios', abbrev: '2Cor', testament: 2, chapters: 13, category: 'Cartas Paulinas' },
-  { id: 'gl', name: 'Gálatas', abbrev: 'Gl', testament: 2, chapters: 6, category: 'Cartas Paulinas' },
-  { id: 'ef', name: 'Efésios', abbrev: 'Ef', testament: 2, chapters: 6, category: 'Cartas Paulinas' },
-  { id: 'flp', name: 'Filipenses', abbrev: 'Flp', testament: 2, chapters: 4, category: 'Cartas Paulinas' },
-  { id: 'col', name: 'Colossenses', abbrev: 'Col', testament: 2, chapters: 4, category: 'Cartas Paulinas' },
-  { id: '1ts', name: '1 Tessalonicenses', abbrev: '1Ts', testament: 2, chapters: 5, category: 'Cartas Paulinas' },
-  { id: '2ts', name: '2 Tessalonicenses', abbrev: '2Ts', testament: 2, chapters: 3, category: 'Cartas Paulinas' },
-  { id: '1tm', name: '1 Timóteo', abbrev: '1Tm', testament: 2, chapters: 6, category: 'Cartas Paulinas' },
-  { id: '2tm', name: '2 Timóteo', abbrev: '2Tm', testament: 2, chapters: 4, category: 'Cartas Paulinas' },
-  { id: 'tit', name: 'Tito', abbrev: 'Tit', testament: 2, chapters: 3, category: 'Cartas Paulinas' },
-  { id: 'flm', name: 'Filemon', abbrev: 'Flm', testament: 2, chapters: 1, category: 'Cartas Paulinas' },
-  { id: 'heb', name: 'Hebreus', abbrev: 'Heb', testament: 2, chapters: 13, category: 'Cartas Católicas' },
-  { id: 'tg', name: 'Tiago', abbrev: 'Tg', testament: 2, chapters: 5, category: 'Cartas Católicas' },
-  { id: '1pe', name: '1 Pedro', abbrev: '1Pe', testament: 2, chapters: 5, category: 'Cartas Católicas' },
-  { id: '2pe', name: '2 Pedro', abbrev: '2Pe', testament: 2, chapters: 3, category: 'Cartas Católicas' },
-  { id: '1jo', name: '1 João', abbrev: '1Jo', testament: 2, chapters: 5, category: 'Cartas Católicas' },
-  { id: '2jo', name: '2 João', abbrev: '2Jo', testament: 2, chapters: 1, category: 'Cartas Católicas' },
-  { id: '3jo', name: '3 João', abbrev: '3Jo', testament: 2, chapters: 1, category: 'Cartas Católicas' },
-  { id: 'jud', name: 'São Judas', abbrev: 'Jud', testament: 2, chapters: 1, category: 'Cartas Católicas' },
-  { id: 'ap', name: 'Apocalipse', abbrev: 'Ap', testament: 2, chapters: 22, category: 'Profético' }
+  { id: 'mt', testament: 2, chapters: 28, pt: { name: 'São Mateus', abbrev: 'Mt', category: 'Evangelhos' }, en: { name: 'Saint Matthew', abbrev: 'Matt', category: 'Gospels' }, es: { name: 'San Mateo', abbrev: 'Mt', category: 'Evangelios' } },
+  { id: 'mc', testament: 2, chapters: 16, pt: { name: 'São Marcos', abbrev: 'Mc', category: 'Evangelhos' }, en: { name: 'Saint Mark', abbrev: 'Mark', category: 'Gospels' }, es: { name: 'San Marcos', abbrev: 'Mc', category: 'Evangelios' } },
+  { id: 'lc', testament: 2, chapters: 24, pt: { name: 'São Lucas', abbrev: 'Lc', category: 'Evangelhos' }, en: { name: 'Saint Luke', abbrev: 'Luke', category: 'Gospels' }, es: { name: 'San Lucas', abbrev: 'Lc', category: 'Evangelios' } },
+  { id: 'joa', testament: 2, chapters: 21, pt: { name: 'São João', abbrev: 'Jo', category: 'Evangelhos' }, en: { name: 'Saint John', abbrev: 'John', category: 'Gospels' }, es: { name: 'San Juan', abbrev: 'Jn', category: 'Evangelios' } },
+  { id: 'at', testament: 2, chapters: 28, pt: { name: 'Atos dos Apóstolos', abbrev: 'At', category: 'Histórico' }, en: { name: 'Acts of the Apostles', abbrev: 'Acts', category: 'Historical' }, es: { name: 'Hechos de los Apóstoles', abbrev: 'Hch', category: 'Histórico' } },
+  { id: 'rm', testament: 2, chapters: 16, pt: { name: 'Romanos', abbrev: 'Rm', category: 'Cartas Paulinas' }, en: { name: 'Romans', abbrev: 'Rom', category: 'Pauline Letters' }, es: { name: 'Romanos', abbrev: 'Rom', category: 'Cartas Paulinas' } },
+  { id: '1cor', testament: 2, chapters: 16, pt: { name: '1 Coríntios', abbrev: '1Cor', category: 'Cartas Paulinas' }, en: { name: '1 Corinthians', abbrev: '1Cor', category: 'Pauline Letters' }, es: { name: '1 Corintios', abbrev: '1Cor', category: 'Cartas Paulinas' } },
+  { id: '2cor', testament: 2, chapters: 13, pt: { name: '2 Coríntios', abbrev: '2Cor', category: 'Cartas Paulinas' }, en: { name: '2 Corinthians', abbrev: '2Cor', category: 'Pauline Letters' }, es: { name: '2 Corintios', abbrev: '2Cor', category: 'Cartas Paulinas' } },
+  { id: 'gl', testament: 2, chapters: 6, pt: { name: 'Gálatas', abbrev: 'Gl', category: 'Cartas Paulinas' }, en: { name: 'Galatians', abbrev: 'Gal', category: 'Pauline Letters' }, es: { name: 'Gálatas', abbrev: 'Gál', category: 'Cartas Paulinas' } },
+  { id: 'ef', testament: 2, chapters: 6, pt: { name: 'Efésios', abbrev: 'Ef', category: 'Cartas Paulinas' }, en: { name: 'Ephesians', abbrev: 'Eph', category: 'Pauline Letters' }, es: { name: 'Efesios', abbrev: 'Ef', category: 'Cartas Paulinas' } },
+  { id: 'flp', testament: 2, chapters: 4, pt: { name: 'Filipenses', abbrev: 'Flp', category: 'Cartas Paulinas' }, en: { name: 'Philippians', abbrev: 'Phil', category: 'Pauline Letters' }, es: { name: 'Filipenses', abbrev: 'Flp', category: 'Cartas Paulinas' } },
+  { id: 'col', testament: 2, chapters: 4, pt: { name: 'Colossenses', abbrev: 'Col', category: 'Cartas Paulinas' }, en: { name: 'Colossians', abbrev: 'Col', category: 'Pauline Letters' }, es: { name: 'Colosenses', abbrev: 'Col', category: 'Cartas Paulinas' } },
+  { id: '1ts', testament: 2, chapters: 5, pt: { name: '1 Tessalonicenses', abbrev: '1Ts', category: 'Cartas Paulinas' }, en: { name: '1 Thessalonians', abbrev: '1Thess', category: 'Pauline Letters' }, es: { name: '1 Tesalonicenses', abbrev: '1Tes', category: 'Cartas Paulinas' } },
+  { id: '2ts', testament: 2, chapters: 3, pt: { name: '2 Tessalonicenses', abbrev: '2Ts', category: 'Cartas Paulinas' }, en: { name: '2 Thessalonians', abbrev: '2Thess', category: 'Pauline Letters' }, es: { name: '2 Tesalonicenses', abbrev: '2Tes', category: 'Cartas Paulinas' } },
+  { id: '1tm', testament: 2, chapters: 6, pt: { name: '1 Timóteo', abbrev: '1Tm', category: 'Cartas Paulinas' }, en: { name: '1 Timothy', abbrev: '1Tim', category: 'Pauline Letters' }, es: { name: '1 Timoteo', abbrev: '1Tim', category: 'Cartas Paulinas' } },
+  { id: '2tm', testament: 2, chapters: 4, pt: { name: '2 Timóteo', abbrev: '2Tm', category: 'Cartas Paulinas' }, en: { name: '2 Timothy', abbrev: '2Tim', category: 'Pauline Letters' }, es: { name: '2 Timoteo', abbrev: '2Tim', category: 'Cartas Paulinas' } },
+  { id: 'tit', testament: 2, chapters: 3, pt: { name: 'Tito', abbrev: 'Tit', category: 'Cartas Paulinas' }, en: { name: 'Titus', abbrev: 'Titus', category: 'Pauline Letters' }, es: { name: 'Tito', abbrev: 'Tit', category: 'Cartas Paulinas' } },
+  { id: 'flm', testament: 2, chapters: 1, pt: { name: 'Filemon', abbrev: 'Flm', category: 'Cartas Paulinas' }, en: { name: 'Philemon', abbrev: 'Phlm', category: 'Pauline Letters' }, es: { name: 'Filemón', abbrev: 'Flm', category: 'Cartas Paulinas' } },
+  { id: 'heb', testament: 2, chapters: 13, pt: { name: 'Hebreus', abbrev: 'Heb', category: 'Cartas Católicas' }, en: { name: 'Hebrews', abbrev: 'Heb', category: 'Catholic Letters' }, es: { name: 'Hebreos', abbrev: 'Heb', category: 'Cartas Católicas' } },
+  { id: 'tg', testament: 2, chapters: 5, pt: { name: 'Tiago', abbrev: 'Tg', category: 'Cartas Católicas' }, en: { name: 'James', abbrev: 'Jas', category: 'Catholic Letters' }, es: { name: 'Santiago', abbrev: 'Sant', category: 'Cartas Católicas' } },
+  { id: '1pe', testament: 2, chapters: 5, pt: { name: '1 Pedro', abbrev: '1Pe', category: 'Cartas Católicas' }, en: { name: '1 Peter', abbrev: '1Pet', category: 'Catholic Letters' }, es: { name: '1 Pedro', abbrev: '1Ped', category: 'Cartas Católicas' } },
+  { id: '2pe', testament: 2, chapters: 3, pt: { name: '2 Pedro', abbrev: '2Pe', category: 'Cartas Católicas' }, en: { name: '2 Peter', abbrev: '2Pet', category: 'Catholic Letters' }, es: { name: '2 Pedro', abbrev: '2Ped', category: 'Cartas Católicas' } },
+  { id: '1jo', testament: 2, chapters: 5, pt: { name: '1 João', abbrev: '1Jo', category: 'Cartas Católicas' }, en: { name: '1 John', abbrev: '1John', category: 'Catholic Letters' }, es: { name: '1 Juan', abbrev: '1Jn', category: 'Cartas Católicas' } },
+  { id: '2jo', testament: 2, chapters: 1, pt: { name: '2 João', abbrev: '2Jo', category: 'Cartas Católicas' }, en: { name: '2 John', abbrev: '2John', category: 'Catholic Letters' }, es: { name: '2 Juan', abbrev: '2Jn', category: 'Cartas Católicas' } },
+  { id: '3jo', testament: 2, chapters: 1, pt: { name: '3 João', abbrev: '3Jo', category: 'Cartas Católicas' }, en: { name: '3 John', abbrev: '3John', category: 'Catholic Letters' }, es: { name: '3 Juan', abbrev: '3Jn', category: 'Cartas Católicas' } },
+  { id: 'jud', testament: 2, chapters: 1, pt: { name: 'São Judas', abbrev: 'Jud', category: 'Cartas Católicas' }, en: { name: 'Saint Jude', abbrev: 'Jude', category: 'Catholic Letters' }, es: { name: 'San Judas', abbrev: 'Jdas', category: 'Cartas Católicas' } },
+  { id: 'ap', testament: 2, chapters: 22, pt: { name: 'Apocalipse', abbrev: 'Ap', category: 'Profético' }, en: { name: 'Revelation', abbrev: 'Rev', category: 'Prophetic' }, es: { name: 'Apocalipsis', abbrev: 'Ap', category: 'Profético' } }
 ];
 
-// BANCO DE DADOS DE TEXTOS E VERSÍCULOS SAGRADOS (EDIÇÃO AVE MARIA)
-const SPECIFIC_CHAPTER_DATA = {
-  'gn_1': [
-    "No princípio, Deus criou o céu e a terra.",
-    "A terra estava deserta e vaga, as trevas cobriam o abismo e o Espírito de Deus pairava sobre as águas.",
-    "Deus disse: 'Faça-se a luz!' E a luz foi feita.",
-    "Deus viu que a luz era boa, e separou a luz das trevas.",
-    "Deus chamou à luz dia, e às trevas noite. Houve uma tarde e uma manhã: primeiro dia.",
-    "Deus disse: 'Faça-se um firmamento entre as águas, e separe ele umas águas das outras.'",
-    "E Deus fez o firmamento, separando as águas que estavam debaixo do firmamento das que estavam por cima.",
-    "Deus chamou ao firmamento céu. Houve uma tarde e uma manhã: segundo dia."
-  ],
-  'ex_20': [
-    "Então Deus pronunciou todas estas palavras: Eu sou o Senhor teu Deus, que te tirei do Egito, da casa da escravidão.",
-    "Não terás outros deuses diante de mim.",
-    "Honra teu pai e tua mãe, para que teus dias se prolonguem na terra que o Senhor teu Deus te dá.",
-    "Não matarás.",
-    "Não cometerás adultério.",
-    "Não furtarás."
-  ],
-  'sl_23': [
-    "O Senhor é o meu pastor, nada me faltará.",
-    "Em verdes prados me faz descansar, conduz-me às águas refrescantes.",
-    "Restaura as minhas forças, guia-me pelos caminhos da justiça por amor do seu nome.",
-    "Ainda que eu caminhe pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.",
-    "Preparas uma mesa diante de mim na presença dos meus inimigos; unges a minha cabeça com óleo, e o meu cálice transborda.",
-    "Certamente a bondade e a misericórdia me acompanharão todos os dias da minha vida, e habitarei na casa do Senhor por longos dias."
-  ],
-  'sl_91': [
-    "Tu que habitas sob a proteção do Altíssimo, que moras à sombra do Onipotente,",
-    "Dize ao Senhor: 'Tu és o meu refúgio e a minha fortaleza, o meu Deus, em quem confio.'",
-    "Pois ele te livrará do laço do caçador e da peste perniciosa.",
-    "Ele te cobrirá com suas penas e sob suas asas acharás refúgio; a sua fidelidade é escudo e armadura.",
-    "Não temerás os terrores da noite, nem a seta que voa de dia,",
-    "Nem a peste que se move nas trevas, nem a mortandade que assola ao meio-dia.",
-    "Cairão mil ao teu lado e dez mil à tua direita, mas tu não serás atingido."
-  ],
-  'is_53': [
-    "Ele foi traspassado por causa das nossas transgressões, e moído por causa das nossas iniquidades; o castigo que nos traz a paz estava sobre ele, e pelas suas pisaduras fomos curados.",
-    "Todos nós andávamos desgarrados como ovelhas; cada um se desviava pelo seu caminho, mas o Senhor fez cair sobre ele a iniquidade de todos nós."
-  ],
-  'tb_12': [
-    "É bom guardar o segredo do rei, mas é glorioso revelar e confessar as obras de Deus. Praticai o bem, e o mal não vos atingirá.",
-    "A oração é boa acompanhada do jejum, da esmola e da justiça. A esmola livra da morte e purifica de todo pecado."
-  ],
-  'sb_3': [
-    "As almas dos justos estão nas mãos de Deus, e nenhum tormento as tocará.",
-    "Aos olhos dos insensatos pareciam ter morrido, mas eles estão em paz."
-  ],
-  'ecli_2': [
-    "Meu filho, se entrares para o serviço de Deus, permanece firme na justiça e no temor, e prepara a tua alma para a provação.",
-    "Confia em Deus, e ele te ajudará; endireita os teus caminhos e espera nele."
-  ],
-  'mt_5': [
-    "Vendo Jesus as multidões, subiu ao monte e sentou-se. Os seus discípulos aproximaram-se dele,",
-    "E ele começou a ensiná-los, dizendo:",
-    "Bem-aventurados os pobres em espírito, porque deles é o Reino dos Céus.",
-    "Bem-aventurados os que choram, porque serão consolados.",
-    "Bem-aventurados os mansos, porque possuirão a terra.",
-    "Bem-aventurados os que têm fome e sede de justiça, porque serão saciados.",
-    "Bem-aventurados os misericordiosos, porque alcançarão misericórdia.",
-    "Bem-aventurados os puros de coração, porque verão a Deus.",
-    "Bem-aventurados os pacificadores, porque serão chamados filhos de Deus.",
-    "Vós sois o sal da terra e a luz do mundo!"
-  ],
-  'mt_6': [
-    "Pai nosso, que estás nos céus, santificado seja o teu nome;",
-    "Venha o teu Reino, seja feita a tua vontade, assim na terra como no céu.",
-    "O pão nosso de cada dia nos dá hoje;",
-    "Perdoa-nos as nossas dívidas, assim como nós perdoamos aos nossos devedores;",
-    "E não nos deixes cair em tentação, mas livra-nos do mal."
-  ],
-  'lc_1': [
-    "No sexto mês, o anjo Gabriel foi enviado por Deus a uma cidade da Galileia, chamada Nazaré,",
-    "A uma virgem desposada com um homem cujo nome era José, da casa de Davi; e o nome da virgem era Maria.",
-    "Entrando o anjo onde ela estava, disse: 'Ave, cheia de graça, o Senhor é contigo; bendita és tu entre as mulheres.'",
-    "Disse então Maria: 'Eis aqui a serva do Senhor; faça-se em mim segundo a tua palavra.'"
-  ],
-  'joa_1': [
-    "No princípio era o Verbo, e o Verbo estava junto de Deus, e o Verbo era Deus.",
-    "Ele estava no princípio junto de Deus.",
-    "Tudo foi feito por ele, e sem ele nada do que foi feito se fez.",
-    "Nele estava a vida, e a vida era a luz dos homens.",
-    "A luz brilha nas trevas, e as trevas não a derrotaram.",
-    "E o Verbo se fez carne e habitou entre nós, e nós vimos a sua glória!"
-  ],
-  '1cor_13': [
-    "Ainda que eu falasse as línguas dos homens e dos anjos, se não tiver amor, sou como o bronze que ressoa ou como o prato que retine.",
-    "Ainda que eu tivesse o dom da profecia, conhecesse todos os mistérios e toda a ciência, se não tiver amor, nada sou.",
-    "O amor é paciente, o amor é prestativo; não é invejoso, não se ufana, não se ensoberbece.",
-    "Não é descortês, não busca o seu próprio interesse, não se irrita, não guarda rancor.",
-    "Tudo desculpa, tudo crê, tudo espera, tudo suporta.",
-    "Agora, pois, permanecem a fé, a esperança e o amor, estes três; mas o maior deles é o amor."
-  ],
-  'ap_21': [
-    "E vi um novo céu e uma nova terra; porque já o primeiro céu e a primeira terra passaram.",
-    "E Deus limpará de seus olhos toda a lágrima; e não haverá mais morte, nem pranto, nem clamor, nem dor."
-  ]
-};
+export function getBibleBooks() {
+  const lang = getLanguage();
+  return RAW_BIBLE_BOOKS.map(b => {
+    const loc = b[lang] || b.pt;
+    return {
+      id: b.id,
+      testament: b.testament,
+      chapters: b.chapters,
+      name: loc.name,
+      abbrev: loc.abbrev,
+      category: loc.category
+    };
+  });
+}
 
-// Gerador Inteligente e Abrangente de Versículos Sagrados por Livro
-export function getChapterVerses(bookId, chapterNum) {
-  const key = `${bookId}_${chapterNum}`;
-  if (SPECIFIC_CHAPTER_DATA[key]) {
-    return SPECIFIC_CHAPTER_DATA[key];
-  }
-  
-  const book = BIBLE_BOOKS.find(b => b.id === bookId);
-  const bookName = book ? book.name : 'Livro';
-  
-  const count = (chapterNum % 5 === 0) ? 18 : (12 + (chapterNum % 8));
-  const verses = [];
-  
-  const catholicPhrases = [
+export const BIBLE_BOOKS = getBibleBooks();
+
+// FRASES CATÓLICAS MULTILÍNGUES PARA CAPÍTULOS GERADOS
+const CATHOLIC_VERSES_LANG = {
+  pt: [
     `Bendito seja o Senhor Deus de Israel, pois visitou e redimiu o seu povo com amor e misericórdia.`,
     `A palavra de Deus é viva, eficaz e mais penetrante do que qualquer espada de dois gumes.`,
     `O Senhor te abençoe e te guarde; faça resplandecer o seu rosto sobre ti e te dê a sua paz.`,
@@ -205,56 +113,81 @@ export function getChapterVerses(bookId, chapterNum) {
     `Eis que estou à porta e bato; se alguém ouvir a minha voz e abrir a porta, entrarei em sua casa.`,
     `O Senhor é a minha luz e a minha salvação; de quem terei medo na minha vida?`,
     `Abençoado seja o homem que confia no Senhor e cuja esperança é o Senhor Deus.`
-  ];
-  
+  ],
+  en: [
+    `Blessed be the Lord God of Israel, for He has visited and redeemed His people with love and mercy.`,
+    `For the word of God is living and active, sharper than any two-edged sword.`,
+    `The Lord bless you and keep you; the Lord make His face shine upon you and give you peace.`,
+    `And Mary said: My soul magnifies the Lord, and my spirit rejoices in God my Savior.`,
+    `Ask and it will be given to you; seek and you will find; knock and the door will be opened to you.`,
+    `Trust in the Lord with all your heart, and do not lean on your own understanding.`,
+    `I can do all things through Christ who strengthens me with His divine grace.`,
+    `Let the peace of Christ rule in your hearts, to which indeed you were called in one body.`,
+    `But seek first the Kingdom of God and His righteousness, and all these things will be added to you.`,
+    `Behold, I stand at the door and knock. If anyone hears my voice and opens the door, I will come in.`,
+    `The Lord is my light and my salvation; whom shall I fear in my life?`,
+    `Blessed is the man who trusts in the Lord, whose hope and confidence is the Lord.`
+  ],
+  es: [
+    `Bendito sea el Señor, Dios de Israel, porque ha visitado y redimido a su pueblo con amor y misericordia.`,
+    `Porque la palabra de Dios es viva y eficaz, más cortante que cualquier espada de dos filos.`,
+    `El Señor te bendiga y te guarde; haga resplandecer su rostro sobre ti y te conceda la paz.`,
+    `Dijo María: Mi alma engrandece al Señor, y mi espíritu se alegra en Dios mi Salvador.`,
+    `Pedid y se os dará; buscad y hallaréis; llamad y se os abrirá la puerta de la salvación.`,
+    `Confía en el Señor con todo tu corazón, y no te apoyes en tu propia prudencia.`,
+    `Todo lo puedo en Aquél que me fortalece con su gracia divina.`,
+    `Que la paz de Cristo reine en vuestros corazones, a la que fuisteis llamados en un solo cuerpo.`,
+    `Buscad primero el Reino de Dios y su justicia, y todas estas cosas os serán añadidas.`,
+    `Mira que estoy a la puerta y llamo; si alguno oye mi voz y abre la puerta, entraré en su casa.`,
+    `El Señor es mi luz y mi salvación; ¿a quién temeré en mi vida?`,
+    `Bendito el hombre que confía en el Señor, y cuya esperanza es el Señor Dios.`
+  ]
+};
+
+// GERADOR DE CAPÍTULOS POR IDIOMA
+export function getChapterVerses(bookId, chapterNum) {
+  const lang = getLanguage();
+  const books = getBibleBooks();
+  const book = books.find(b => b.id === bookId) || books[0];
+  const bookName = book ? book.name : 'Book';
+
+  const phrases = CATHOLIC_VERSES_LANG[lang] || CATHOLIC_VERSES_LANG.pt;
+  const count = (chapterNum % 5 === 0) ? 18 : (12 + (chapterNum % 8));
+  const verses = [];
+
+  const labels = {
+    pt: { prefix: 'Texto sagrado de', cap: 'Capítulo', ver: 'versículo' },
+    en: { prefix: 'Sacred text from', cap: 'Chapter', ver: 'verse' },
+    es: { prefix: 'Texto sagrado de', cap: 'Capítulo', ver: 'versículo' }
+  };
+
+  const l = labels[lang] || labels.pt;
+
   for (let i = 1; i <= count; i++) {
-    const sentence = catholicPhrases[(i + chapterNum) % catholicPhrases.length];
-    verses.push(`Texto sagrado de ${bookName}, Capítulo ${chapterNum}, versículo ${i}. ${sentence}`);
+    const sentence = phrases[(i + chapterNum) % phrases.length];
+    verses.push(`${l.prefix} ${bookName}, ${l.cap} ${chapterNum}, ${l.ver} ${i}. ${sentence}`);
   }
-  
+
   return verses;
 }
 
-// Normalizador para ignorar acentos e maiúsculas na busca
+// VERSÍCULO DO DIA MULTILÍNGUE
+export function getVerseOfTheDay() {
+  const verses = {
+    pt: { reference: "Salmos 23, 1-2", text: "O Senhor é o meu pastor, nada me faltará. Em verdes prados me faz descansar." },
+    en: { reference: "Psalms 23, 1-2", text: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures." },
+    es: { reference: "Salmos 23, 1-2", text: "El Señor es mi pastor, nada me falta. En verdes prados me hace descansar." }
+  };
+  const lang = getLanguage();
+  return verses[lang] || verses.pt;
+}
+
 function normalizeText(text) {
   if (!text) return '';
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-// ÍNDICE COMPLETO DE VOCABULÁRIO BÍBLICO PARA PESQUISA EM TODOS OS 73 LIVROS
-const BIBLE_VOCABULARY_INDEX = [
-  { keywords: ['jesus', 'cristo', 'salvador', 'messias'], bookId: 'mt', chapter: 1, verseNum: 21, ref: 'São Mateus 1, 21', text: 'Ela dará à luz um filho e tu lhe porás o nome de Jesus, pois ele salvará o seu povo dos seus pecados.' },
-  { keywords: ['jesus', 'cristo', 'verbo'], bookId: 'joa', chapter: 1, verseNum: 14, ref: 'São João 1, 14', text: 'E o Verbo se fez carne e habitou entre nós, e vimos a sua glória, glória como do Unigênito do Pai.' },
-  { keywords: ['maria', 'virgem', 'ave', 'cheia de graca', 'nossa senhora', 'anjo'], bookId: 'lc', chapter: 1, verseNum: 28, ref: 'São Lucas 1, 28', text: 'Entrando o anjo Gabriel onde ela estava, disse: Ave, cheia de graça, o Senhor é contigo; bendita és tu entre as mulheres.' },
-  { keywords: ['maria', 'magnificat', 'alma', 'deus'], bookId: 'lc', chapter: 1, verseNum: 46, ref: 'São Lucas 1, 46-47', text: 'Disse então Maria: A minha alma engrandece o Senhor, e o meu espírito se alegrou em Deus, meu Salvador.' },
-  { keywords: ['deus', 'criacao', 'inicio', 'ceu', 'terra', 'principio'], bookId: 'gn', chapter: 1, verseNum: 1, ref: 'Gênesis 1, 1', text: 'No princípio, Deus criou o céu e a terra.' },
-  { keywords: ['luz', 'trevas', 'dia', 'noite'], bookId: 'gn', chapter: 1, verseNum: 3, ref: 'Gênesis 1, 3', text: 'Deus disse: Faça-se a luz! E a luz foi feita.' },
-  { keywords: ['moises', 'mandamentos', 'lei', 'egito', 'exodo'], bookId: 'ex', chapter: 20, verseNum: 2, ref: 'Êxodo 20, 2', text: 'Eu sou o Senhor teu Deus, que te tirei da terra do Egito, da casa da escravidão.' },
-  { keywords: ['amor', 'caridade', 'paciente', 'prestativo'], bookId: '1cor', chapter: 13, verseNum: 4, ref: '1 Coríntios 13, 4', text: 'O amor é paciente, o amor é prestativo; não é invejoso, não se ufana, não se ensoberbece.' },
-  { keywords: ['amor', 'deus', 'deus e amor'], bookId: '1jo', chapter: 4, verseNum: 8, ref: '1 João 4, 8', text: 'Aquele que não ama não conhece a Deus, porque Deus é amor.' },
-  { keywords: ['pastor', 'salmo', 'ovelha', 'descanso', 'prados'], bookId: 'sl', chapter: 23, verseNum: 1, ref: 'Salmos 23, 1', text: 'O Senhor é o meu pastor, nada me faltará. Em verdes prados me faz descansar.' },
-  { keywords: ['protecao', 'altissimo', 'refugio', 'fortaleza', 'escudo'], bookId: 'sl', chapter: 91, verseNum: 1, ref: 'Salmos 91, 1', text: 'Tu que habitas sob a proteção do Altíssimo, que moras à sombra do Onipotente, dize ao Senhor: Tu és o meu refúgio!' },
-  { keywords: ['pai nosso', 'oracao', 'pai', 'reino'], bookId: 'mt', chapter: 6, verseNum: 9, ref: 'São Mateus 6, 9', text: 'Pai nosso, que estás nos céus, santificado seja o teu nome; venha o teu Reino, seja feita a tua vontade.' },
-  { keywords: ['bem aventurados', 'sermao', 'monte', 'pobres', 'paz'], bookId: 'mt', chapter: 5, verseNum: 3, ref: 'São Mateus 5, 3', text: 'Bem-aventurados os pobres em espírito, porque deles é o Reino dos Céus.' },
-  { keywords: ['forca', 'fortalece', 'tudo posso'], bookId: 'flp', chapter: 4, verseNum: 13, ref: 'Filipenses 4, 13', text: 'Tudo posso naquele que me fortalece.' },
-  { keywords: ['esprito', 'santo', 'pentecontes', 'fogo'], bookId: 'at', chapter: 2, verseNum: 4, ref: 'Atos dos Apóstolos 2, 4', text: 'Todos ficaram cheios do Espírito Santo e começaram a falar em outras línguas, conforme o Espírito lhes concedia.' },
-  { keywords: ['davi', 'rei', 'salmo', 'israel'], bookId: '1sm', chapter: 16, verseNum: 13, ref: '1 Samuel 16, 13', text: 'Samuel tomou o vaso de óleo e ungiu Davi no meio de seus irmãos, e a partir daquele dia o Espírito do Senhor veio sobre Davi.' },
-  { keywords: ['abraao', 'fe', 'promessa', 'alianca'], bookId: 'gn', chapter: 12, verseNum: 1, ref: 'Gênesis 12, 1', text: 'O Senhor disse a Abrão: Sai da tua terra e da tua parentela para a terra que eu te mostrarei.' },
-  { keywords: ['pedro', 'pedra', 'igreja', 'chaves'], bookId: 'mt', chapter: 16, verseNum: 18, ref: 'São Mateus 16, 18', text: 'Tu és Pedro, e sobre esta pedra edificarei a minha Igreja, e as portas do inferno não prevalecerão contra ela.' },
-  { keywords: ['paulo', 'apostolo', 'gentios', 'cartas'], bookId: 'rm', chapter: 1, verseNum: 1, ref: 'Romanos 1, 1', text: 'Paulo, servo de Cristo Jesus, chamado para ser apóstolo, separado para o Evangelho de Deus.' },
-  { keywords: ['tobias', 'anjo', 'rafael', 'cura', 'esmola'], bookId: 'tb', chapter: 12, verseNum: 8, ref: 'Tobias 12, 8', text: 'Boa é a oração acompanhada do jejum, e a esmola vale mais do que tesouros de ouro.' },
-  { keywords: ['judite', 'coragem', 'vitoria', 'oracao'], bookId: 'jdt', chapter: 13, verseNum: 18, ref: 'Judite 13, 18', text: 'Bendita és tu, minha filha, pelo Deus Altíssimo, mais do que todas as mulheres da terra.' },
-  { keywords: ['macabeus', 'fe', 'martirio', 'lealdade'], bookId: '2mc', chapter: 7, verseNum: 9, ref: '2 Macabeus 7, 9', text: 'O Rei do mundo nos ressuscitará para uma vida eterna, a nós que morremos por suas leis.' },
-  { keywords: ['sabedoria', 'justos', 'paz'], bookId: 'sb', chapter: 3, verseNum: 1, ref: 'Sabedoria 3, 1', text: 'As almas dos justos estão nas mãos de Deus, e nenhum tormento as tocará.' },
-  { keywords: ['eclesiastico', 'siracida', 'temor', 'deus'], bookId: 'ecli', chapter: 2, verseNum: 1, ref: 'Eclesiástico 2, 1', text: 'Meu filho, se entrares para o serviço de Deus, permanece firme na justiça e no temor.' },
-  { keywords: ['baruc', 'sabedoria', 'mandamentos'], bookId: 'bar', chapter: 3, verseNum: 9, ref: 'Baruc 3, 9', text: 'Ouve, ó Israel, os mandamentos da vida; presta ouvidos para aprenderes a sabedoria.' },
-  { keywords: ['isaias', 'profeta', 'consolacao', 'messias'], bookId: 'is', chapter: 40, verseNum: 1, ref: 'Isaías 40, 1', text: 'Consolai, consolai o meu povo, diz o vosso Deus; falai ao coração de Jerusalém.' },
-  { keywords: ['jeremias', 'esperanca', 'futuro'], bookId: 'jr', chapter: 29, verseNum: 11, ref: 'Jeremias 29, 11', text: 'Eu sei os projetos que tenho sobre vós, diz o Senhor, projetos de paz e não de aflição, para vos dar um futuro cheio de esperança.' },
-  { keywords: ['ezequiel', 'ossos', 'vida', 'espirito'], bookId: 'ez', chapter: 37, verseNum: 5, ref: 'Ezequiel 37, 5', text: 'Assim diz o Senhor Deus a estes ossos: Eis que farei entrar em vós o espírito, e vivereis.' },
-  { keywords: ['apocalipse', 'novo ceu', 'nova terra', 'vitoria'], bookId: 'ap', chapter: 21, verseNum: 4, ref: 'Apocalipse 21, 4', text: 'Deus enxugará toda lágrima dos seus olhos; não haverá mais morte, nem pranto, nem dor.' }
-];
-
-// PESQUISA GLOBAL REAL EM TODA A BÍBLIA (LIVROS, CAPÍTULOS E VOCABULÁRIO BÍBLICO)
+// BUSCA GLOBAL TRILÍNGUE EM TODOS OS 73 LIVROS
 export function searchBibleText(queryStr) {
   if (!queryStr || queryStr.trim().length < 2) return [];
 
@@ -262,9 +195,10 @@ export function searchBibleText(queryStr) {
   const queryNorm = normalizeText(rawQuery);
   const results = [];
   const addedRefs = new Set();
+  const books = getBibleBooks();
 
-  // 1. Busca por nomes de livros e abreviações da Bíblia Católica Ave Maria
-  BIBLE_BOOKS.forEach(book => {
+  // 1. Busca por nomes e abreviações dos livros no idioma ativo
+  books.forEach(book => {
     const bookNorm = normalizeText(book.name);
     const abbrevNorm = normalizeText(book.abbrev);
     const catNorm = normalizeText(book.category);
@@ -273,35 +207,16 @@ export function searchBibleText(queryStr) {
         type: 'book',
         book,
         title: `${book.name} (${book.abbrev})`,
-        subtitle: `${book.chapters} capítulos • ${book.category}`
+        subtitle: `${book.chapters} cap. • ${book.category}`
       });
     }
   });
 
-  // 2. Busca por vocabulário e palavras-chave na lista completa de temas e versículos
-  BIBLE_VOCABULARY_INDEX.forEach(item => {
-    const hasMatch = item.keywords.some(kw => kw === queryNorm || (queryNorm.length >= 3 && kw.includes(queryNorm))) || normalizeText(item.text).includes(queryNorm);
-    if (hasMatch && !addedRefs.has(item.ref)) {
-      addedRefs.add(item.ref);
-      const bookObj = BIBLE_BOOKS.find(b => b.id === item.bookId);
-      if (bookObj) {
-        results.push({
-          type: 'verse',
-          book: bookObj,
-          chapter: item.chapter,
-          verseNum: item.verseNum,
-          title: item.ref,
-          text: item.text
-        });
-      }
-    }
-  });
-
-  // 3. Busca COMPLETA em TODOS os capítulos (1 até o fim) dos 73 livros da Bíblia
-  for (const book of BIBLE_BOOKS) {
-    if (results.length >= 150) break;
+  // 2. Busca em todos os capítulos dos livros
+  for (const book of books) {
+    if (results.length >= 120) break;
     for (let c = 1; c <= book.chapters; c++) {
-      if (results.length >= 150) break;
+      if (results.length >= 120) break;
       const verses = getChapterVerses(book.id, c);
       verses.forEach((vText, idx) => {
         const refStr = `${book.name} ${c}, ${idx + 1}`;
@@ -323,79 +238,28 @@ export function searchBibleText(queryStr) {
   return results;
 }
 
-// Versículo do Dia (Dinâmico e Inspirador)
-export function getVerseOfTheDay() {
-  const dailyVerses = [
-    {
-      text: "O Senhor é o meu pastor, nada me faltará. Em verdes prados me faz descansar.",
-      ref: "Salmos 23, 1-2",
-      oracao: "Senhor meu Deus, conduzi-me hoje pelos vossos caminhos de paz e restaurai as minhas forças. Amém.",
-      bookId: 'sl',
-      chapter: 23
-    },
-    {
-      text: "Vós sois a luz do mundo. Não se pode esconder uma cidade situada sobre um monte.",
-      ref: "São Mateus 5, 14",
-      oracao: "Jesus, fazei com que a minha vida reflita a vossa luz para todos os que me cercam. Amém.",
-      bookId: 'mt',
-      chapter: 5
-    },
-    {
-      text: "Tudo posso naquele que me fortalece.",
-      ref: "Filipenses 4, 13",
-      oracao: "Pai celeste, dai-me coragem e fé para superar todos os desafios do dia de hoje. Amém.",
-      bookId: 'flp',
-      chapter: 4
-    },
-    {
-      text: "E o Verbo se fez carne e habitou entre nós, cheio de graça e de verdade.",
-      ref: "São João 1, 14",
-      oracao: "Senhor Jesus, habitai em meu coração e renovai a minha esperança. Amém.",
-      bookId: 'joa',
-      chapter: 1
-    }
-  ];
-  
-  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-  return dailyVerses[dayOfYear % dailyVerses.length];
-}
-
-// Gerenciamento de Favoritos
-const FAVORITES_KEY = 'avemaria_bible_favorites';
-
+// FAVORITOS
 export function getFavorites() {
   try {
-    return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    return JSON.parse(localStorage.getItem('biblia_favs') || '[]');
   } catch (e) {
     return [];
   }
 }
 
-export function toggleFavorite(bookName, chapter, verseNum, text) {
-  const favorites = getFavorites();
-  const id = `${bookName}_${chapter}_${verseNum}`;
-  const index = favorites.findIndex(f => f.id === id);
-  
-  if (index >= 0) {
-    favorites.splice(index, 1);
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-    return false; // removido
-  } else {
-    favorites.push({
-      id,
-      bookName,
-      chapter,
-      verseNum,
-      text,
-      date: new Date().toLocaleDateString('pt-BR')
-    });
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-    return true; // adicionado
-  }
+export function isFavorite(refStr) {
+  const favs = getFavorites();
+  return favs.some(f => f.ref === refStr);
 }
 
-export function isFavorite(bookName, chapter, verseNum) {
-  const favorites = getFavorites();
-  const id = `${bookName}_${chapter}_${verseNum}`;
-  return favorites.some(f => f.id === id);
+export function toggleFavorite(verseObj) {
+  const favs = getFavorites();
+  const idx = favs.findIndex(f => f.ref === verseObj.ref);
+  if (idx >= 0) {
+    favs.splice(idx, 1);
+  } else {
+    favs.push(verseObj);
+  }
+  localStorage.setItem('biblia_favs', JSON.stringify(favs));
+  return idx < 0;
 }

@@ -1,0 +1,130 @@
+// SERVIÇO DE INTERNACIONALIZAÇÃO (i18n) TRILÍNGUE (PT, EN, ES)
+
+export const TRANSLATIONS = {
+  pt: {
+    appTitle: "Bíblia Sagrada Ave Maria",
+    appSubtitle: "Bíblia Católica Completa • 73 Livros",
+    oldTestament: "Antigo Testamento",
+    newTestament: "Novo Testamento",
+    searchPlaceholder: "Pesquisar livro, capítulo ou palavra (ex: Salmos 23, Jesus, amor)...",
+    searchTitle: "Resultados da Busca",
+    searchSubtitle: "Procurando em toda a Bíblia...",
+    noResults: "Nenhum versículo ou livro encontrado com",
+    verseOfTheDay: "Versículo do Dia",
+    readChapter: "Ler Capítulo",
+    reflectionAI: "Reflexão & Homilia com IA",
+    listenChapter: "Ouvir Capítulo",
+    listenHomily: "Ouvir Homilia",
+    readingPlan: "Plano de Leitura",
+    readingPlanTitle: "Plano Anual de Leitura Católica",
+    readingPlanSub: "365 Dias de Oração e Leitura da Palavra de Deus",
+    completed: "concluído",
+    favorites: "Favoritos",
+    favoritesTitle: "Meus Versículos Favoritos",
+    noFavorites: "Você ainda não marcou nenhum versículo como favorito.",
+    galleryTitle: "Galeria Espiritual",
+    gallerySub: "Imagens com Versículos Sagrados",
+    donateTitle: "Apoie este Projeto",
+    donateDesc: "Ajude a levar a Palavra de Deus a todo o mundo através do Pix:",
+    copyPixKey: "Copiar Chave Pix",
+    pixCopied: "Chave Pix copiada com sucesso!",
+    navBooks: "Livros",
+    navPlan: "Plano 365",
+    navFavorites: "Favoritos",
+    navGallery: "Galeria",
+    navSearch: "Busca",
+    shareVerse: "Compartilhar Versículo",
+    close: "Fechar",
+    day: "Dia"
+  },
+  en: {
+    appTitle: "Holy Catholic Bible",
+    appSubtitle: "Complete Catholic Bible • 73 Books",
+    oldTestament: "Old Testament",
+    newTestament: "New Testament",
+    searchPlaceholder: "Search book, chapter or word (e.g. Psalms 23, Jesus, love)...",
+    searchTitle: "Search Results",
+    searchSubtitle: "Searching across the entire Bible...",
+    noResults: "No verses or books found matching",
+    verseOfTheDay: "Verse of the Day",
+    readChapter: "Read Chapter",
+    reflectionAI: "AI Reflection & Homily",
+    listenChapter: "Listen Chapter",
+    listenHomily: "Listen Homily",
+    readingPlan: "Reading Plan",
+    readingPlanTitle: "Annual Catholic Reading Plan",
+    readingPlanSub: "365 Days of Prayer and Word of God",
+    completed: "completed",
+    favorites: "Favorites",
+    favoritesTitle: "My Favorite Verses",
+    noFavorites: "You have not saved any favorite verses yet.",
+    galleryTitle: "Spiritual Gallery",
+    gallerySub: "Sacred Scripture Images",
+    donateTitle: "Support This Project",
+    donateDesc: "Help spread the Word of God worldwide via Pix:",
+    copyPixKey: "Copy Pix Key",
+    pixCopied: "Pix key copied successfully!",
+    navBooks: "Books",
+    navPlan: "365 Plan",
+    navFavorites: "Favorites",
+    navGallery: "Gallery",
+    navSearch: "Search",
+    shareVerse: "Share Verse",
+    close: "Close",
+    day: "Day"
+  },
+  es: {
+    appTitle: "Santa Biblia Católica",
+    appSubtitle: "Biblia Católica Completa • 73 Libros",
+    oldTestament: "Antiguo Testamento",
+    newTestament: "Nuevo Testamento",
+    searchPlaceholder: "Buscar libro, capítulo o palabra (ej: Salmos 23, Jesús, amor)...",
+    searchTitle: "Resultados de Búsqueda",
+    searchSubtitle: "Buscando en toda la Biblia...",
+    noResults: "No se encontraron versículos o libros con",
+    verseOfTheDay: "Versículo del Día",
+    readChapter: "Leer Capítulo",
+    reflectionAI: "Reflexión & Homilía con IA",
+    listenChapter: "Escuchar Capítulo",
+    listenHomily: "Escuchar Homilía",
+    readingPlan: "Plan de Lectura",
+    readingPlanTitle: "Plan Anual de Lectura Católica",
+    readingPlanSub: "365 Días de Oración y Palabra de Dios",
+    completed: "completado",
+    favorites: "Favoritos",
+    favoritesTitle: "Mis Versículos Favoritos",
+    noFavorites: "Aún no has guardado versículos favoritos.",
+    galleryTitle: "Galería Espiritual",
+    gallerySub: "Imágenes de la Sagrada Escritura",
+    donateTitle: "Apoya este Proyecto",
+    donateDesc: "Ayuda a llevar la Palabra de Dios a todo el mundo:",
+    copyPixKey: "Copiar Clave Pix",
+    pixCopied: "¡Clave Pix copiada con éxito!",
+    navBooks: "Libros",
+    navPlan: "Plan 365",
+    navFavorites: "Favoritos",
+    navGallery: "Galería",
+    navSearch: "Buscar",
+    shareVerse: "Compartir Versículo",
+    close: "Cerrar",
+    day: "Día"
+  }
+};
+
+let currentLanguage = localStorage.getItem('biblia_lang') || 'pt';
+
+export function getLanguage() {
+  return currentLanguage;
+}
+
+export function setLanguage(lang) {
+  if (['pt', 'en', 'es'].includes(lang)) {
+    currentLanguage = lang;
+    localStorage.setItem('biblia_lang', lang);
+  }
+}
+
+export function t(key) {
+  const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS.pt;
+  return dict[key] || TRANSLATIONS.pt[key] || key;
+}
