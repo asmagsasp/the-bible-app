@@ -409,12 +409,15 @@ function setupEventListeners() {
   // Botões do Modal Pix / Doação
   const donateModal = document.getElementById('donateModal');
   const donateHeaderBtn = document.getElementById('btnDonateHeader');
-  if (donateHeaderBtn && donateModal) {
-    donateHeaderBtn.onclick = () => {
-      triggerHapticFeedback();
-      donateModal.classList.add('active');
-    };
-  }
+  const donateHeroBtn = document.getElementById('btnHeroDonate');
+  
+  const openDonate = () => {
+    triggerHapticFeedback();
+    if (donateModal) donateModal.classList.add('active');
+  };
+  
+  if (donateHeaderBtn) donateHeaderBtn.onclick = openDonate;
+  if (donateHeroBtn) donateHeroBtn.onclick = openDonate;
   
   const closeDonateBtn = document.getElementById('btnCloseDonate');
   if (closeDonateBtn && donateModal) {
