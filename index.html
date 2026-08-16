@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="navy">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bíblia Sagrada Edição Católica - Ave Maria</title>
+  
+  <!-- iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f172a">
+  
+  <!-- Web Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2903/2903566.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2903/2903566.png">
+
+  <!-- Icons & CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+  <div id="app">
+    
+    <!-- APP HEADER -->
+    <header class="app-header">
+      <div class="header-title-box">
+        <div class="header-logo"><i class="fas fa-cross"></i></div>
+        <div>
+          <h1 class="header-title">Bíblia Sagrada</h1>
+          <div class="header-subtitle">Edição Católica Ave Maria</div>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Alternar Tema -->
+        <button class="btn-icon" id="btnThemeToggle" title="Mudar Tema">
+          <i class="fas fa-moon"></i>
+        </button>
+        <!-- Modal Pix / Apoio -->
+        <button class="btn-icon" id="btnDonateHeader" title="Apoiar Projeto">
+          <i class="fas fa-hand-holding-heart" style="color: var(--accent-gold);"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- SEARCH BAR -->
+    <div class="search-container">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar livro, capítulo ou versículo (ex: Salmos 23)...">
+      </div>
+    </div>
+
+    <!-- MAIN VIEWS -->
+    <main id="mainContent">
+
+      <!-- VIEW 1: HOME (LIVROS E VERSÍCULO DO DIA) -->
+      <section id="viewHome">
+        <!-- Hero Versículo do Dia -->
+        <div class="hero-card">
+          <div class="hero-badge"><i class="fas fa-star"></i> Versículo do Dia</div>
+          <p class="hero-text" id="heroText">Carregando versículo...</p>
+          <div class="hero-ref" id="heroRef"></div>
+          <div class="hero-actions">
+            <button class="btn-primary" id="btnHeroShare">
+              <i class="fab fa-whatsapp"></i> Compartilhar
+            </button>
+            <button class="btn-secondary" id="btnHeroHomily">
+              <i class="fas fa-sparkles" style="color: #3b82f6;"></i> Reflexão com IA
+            </button>
+          </div>
+        </div>
+
+        <!-- Abas Testamento -->
+        <div class="testament-tabs">
+          <button class="tab-btn active" data-testament="0">Todos (73)</button>
+          <button class="tab-btn" data-testament="1">Antigo Testamento (46)</button>
+          <button class="tab-btn" data-testament="2">Novo Testamento (27)</button>
+        </div>
+
+        <!-- Grade de Livros -->
+        <div class="books-grid" id="booksGrid"></div>
+      </section>
+
+      <!-- VIEW 2: LEITOR DE CAPÍTULO E VERSÍCULOS -->
+      <section id="viewReader" class="view-container hidden">
+        <div class="view-header">
+          <button class="btn-icon" id="btnBackToHome"><i class="fas fa-arrow-left"></i></button>
+          <div>
+            <h2 class="view-header-title" id="readerTitle">Gênesis</h2>
+            <div class="view-header-subtitle" id="readerSubtitle">Selecione um capítulo</div>
+          </div>
+        </div>
+
+        <!-- Seletor de Capítulos -->
+        <div class="chapters-grid" id="chaptersGrid"></div>
+
+        <!-- Barra de Ajuste de Leitura -->
+        <div class="verse-reader-controls hidden" id="readerControls">
+          <div class="reader-control-group">
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Tamanho:</span>
+            <button class="btn-icon" id="btnFontMinus" style="width:30px;height:30px;"><i class="fas fa-minus"></i></button>
+            <button class="btn-icon" id="btnFontPlus" style="width:30px;height:30px;"><i class="fas fa-plus"></i></button>
+          </div>
+          <button class="btn-secondary" id="btnListenChapter" style="padding: 6px 12px; font-size: 0.8rem;">
+            <i class="fas fa-volume-high" style="color: var(--accent-gold);"></i> Ouvir Capítulo
+          </button>
+        </div>
+
+        <!-- Lista de Versículos -->
+        <div class="verses-list" id="versesList"></div>
+
+        <!-- Navegação de Capítulo Anterior / Próximo -->
+        <div class="chapter-nav-bar hidden" id="chapterNavBar">
+          <button class="btn-secondary" id="btnPrevChapter"><i class="fas fa-chevron-left"></i> Anterior</button>
+          <button class="btn-secondary" id="btnNextChapter">Próximo <i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <!-- VIEW 3: GALERIA DE VERSÍCULOS -->
+      <section id="viewGallery" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h2 class="view-header-title">Galeria de Meditação</h2>
+            <div class="view-header-subtitle">Imagens e versículos para meditar e compartilhar</div>
+          </div>
+        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </section>
+
+      <!-- VIEW 4: PLANO DE LEITURA (365 DIAS) -->
+      <section id="viewPlan" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h2 class="view-header-title">Plano de Leitura</h2>
+            <div class="view-header-subtitle">Leia a Bíblia Ave Maria inteira em 365 dias</div>
+          </div>
+        </div>
+
+        <div class="plan-progress-card">
+          <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Seu Progresso</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="planProgressFill" style="width: 0%;"></div>
+          </div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-gold);" id="planProgressText">0% concluído</div>
+        </div>
+
+        <div class="plan-days-list" id="planDaysList"></div>
+      </section>
+
+      <!-- VIEW 5: FAVORITOS -->
+      <section id="viewFavorites" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h2 class="view-header-title">Versículos Salvos</h2>
+            <div class="view-header-subtitle">Seus versículos favoritos guardados para reflexão</div>
+          </div>
+        </div>
+        <div class="verses-list" id="favoritesList"></div>
+      </section>
+
+      <!-- VIEW 6: RESULTADOS DE BUSCA -->
+      <section id="viewSearch" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h2 class="view-header-title">Resultados da Busca</h2>
+            <div class="view-header-subtitle" id="searchSubtitle">Procurando versículos...</div>
+          </div>
+        </div>
+        <div class="verses-list" id="searchResultsList"></div>
+      </section>
+
+    </main>
+
+    <!-- FLOATING AUDIO PLAYER BAR -->
+    <div class="audio-player-bar hidden" id="audioPlayerBar">
+      <div class="audio-info">
+        <i class="fas fa-volume-high audio-wave-icon"></i>
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);" id="audioTrackTitle">Lendo Capítulo...</div>
+          <div style="font-size: 0.72rem; color: var(--accent-gold);">Síntese de Voz Nativa</div>
+        </div>
+      </div>
+      <button class="btn-icon" id="btnStopAudio"><i class="fas fa-stop"></i></button>
+    </div>
+
+    <!-- BOTTOM NAVIGATION (MOBILE) -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <button class="nav-item active" data-target="viewHome">
+          <i class="fas fa-book-bible"></i>
+          <span>Início</span>
+        </button>
+        <button class="nav-item" data-target="viewGallery">
+          <i class="fas fa-images"></i>
+          <span>Galeria</span>
+        </button>
+        <button class="nav-item" data-target="viewPlan">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Plano</span>
+        </button>
+        <button class="nav-item" data-target="viewFavorites">
+          <i class="fas fa-heart"></i>
+          <span>Favoritos</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- MODAL: REFLEXÃO COM IA / HOMILIA -->
+    <div class="modal-overlay" id="homilyModal">
+      <div class="modal-content">
+        <button class="modal-close" id="btnCloseHomily"><i class="fas fa-times"></i></button>
+        <div style="text-align: center; margin-bottom: 16px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); color: #3b82f6; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px;">
+            <i class="fas fa-sparkles"></i>
+          </div>
+          <h2 style="font-family: var(--font-title); font-size: 1.25rem; color: var(--text-primary);" id="homilyModalTitle">Reflexão com IA</h2>
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); margin-top: 4px;" id="homilyModalRef"></div>
+        </div>
+
+        <div id="homilyModalBody" style="font-size: 0.92rem; line-height: 1.6; color: var(--text-primary); max-height: 50vh; overflow-y: auto;">
+          <!-- Conteúdo da Homilia -->
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <button class="btn-primary" id="btnSpeakHomily" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);">
+            <i class="fas fa-volume-high"></i> Ouvir Homilia em Áudio
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: APOIE O PROJETO (PIX) -->
+    <div class="modal-overlay" id="donateModal">
+      <div class="modal-content">
+        <button class="modal-close" id="btnCloseDonate"><i class="fas fa-times"></i></button>
+        <div style="text-align: center; margin-bottom: 16px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gold-light); color: var(--accent-gold); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px;">
+            <i class="fas fa-hand-holding-heart"></i>
+          </div>
+          <h2 style="font-family: var(--font-title); font-size: 1.25rem; color: var(--text-primary);">Apoie este Projeto</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+            Sua doação voluntária ajuda a manter o aplicativo da Bíblia no ar, atualizado e 100% sem anúncios.
+          </p>
+        </div>
+
+        <div class="pix-key-box">
+          <div class="pix-key-text" id="pixKeyText">contato@bibliasagradaavemaria.com.br</div>
+          <button class="btn-primary" id="btnCopyPix" style="padding: 6px 12px; font-size: 0.8rem;">
+            <i class="far fa-copy"></i> Copiar
+          </button>
+        </div>
+
+        <p style="font-size: 0.75rem; text-align: center; color: var(--text-muted);">
+          Copie a chave Pix (E-mail) acima e cole no aplicativo do seu banco. Deus abençoe!
+        </p>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Node modules & build outputs
+node_modules/
+dist/
+.DS_Store
+
+# Capacitor / Native build artifacts
+android/app/build/
+android/build/
+android/.gradle/
+android/app/build/outputs/
+ios/App/Pods/
+ios/App/DerivedData/

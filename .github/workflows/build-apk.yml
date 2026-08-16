@@ -1,0 +1,50 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Configurar Java 17 JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Instalar dependências npm
+        run: npm ci
+
+      - name: Gerar o Build da Aplicação Web (Vite)
+        run: npm run build
+
+      - name: Sincronizar Assets com o Capacitor Android
+        run: npx cap sync android
+
+      - name: Conceder permissão de execução ao Gradle
+        run: chmod +x android/gradlew
+
+      - name: Compilar APK do Android (assembleDebug)
+        run: |
+          cd android
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Disponibilizar APK para Download (GitHub Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Biblia-Ave-Maria-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
