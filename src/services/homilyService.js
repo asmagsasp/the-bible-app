@@ -1,10 +1,9 @@
-// SERVIÇO DE ÁUDIO DE ALTA FIDELIDADE COM DIVISÃO DE FRASES (CHUNKING) E FALLBACK AUTOMÁTICO DE VOZ HD
+// SERVIÇO DE REPRODUÇÃO DE ÁUDIO HD (DESBLOQUEIO DE MÍDIA NATIVA & DOM AUDIO PLAYER)
 
 import { showNativeToast } from './nativeService.js';
 
 let isPlaying = false;
 let shouldStop = false;
-let currentAudio = null;
 
 export function getAIHomilyReflection(ref, verseText) {
   return {
@@ -25,8 +24,8 @@ export function getAIHomilyReflection(ref, verseText) {
   };
 }
 
-// DIVIDE TEXTO LONGO EM FRASES CURTAS
-function splitTextIntoChunks(text, maxChunkLen = 180) {
+// DIVIDE TEXTO EM BLOCOS DE FRASES CURTAS
+function splitTextIntoChunks(text, maxChunkLen = 140) {
   const clean = text.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
   if (!clean) return [];
 
@@ -46,7 +45,7 @@ function splitTextIntoChunks(text, maxChunkLen = 180) {
   return chunks.length > 0 ? chunks : [clean];
 }
 
-// REPRODUÇÃO SEQUENCIAL DE ÁUDIO POR BLOCOS
+// REPRODUÇÃO SEQUENCIAL DE ÁUDIO
 export async function speakText(text, onEndCallback, onProgressCallback) {
   stopAudio();
   shouldStop = false;
@@ -67,7 +66,7 @@ export async function speakText(text, onEndCallback, onProgressCallback) {
       onProgressCallback(i + 1, chunks.length, chunk);
     }
 
-    const success = await playChunkWithFallback(chunk);
+    const success = await playChunkAudio(chunk);
     if (!success || shouldStop) break;
   }
 
@@ -76,11 +75,11 @@ export async function speakText(text, onEndCallback, onProgressCallback) {
   return true;
 }
 
-// EXECUTA REPRODUÇÃO DE UM BLOCO DE FRASES
-async function playChunkWithFallback(chunkText) {
+// REPRODUZ BLOCO COM ELEMENTO AUDIO DO DOM E FALLBACKS
+async function playChunkAudio(chunkText) {
   if (shouldStop) return false;
 
-  // TENTA NAVEGADOR NATIVO (SPEECH SYNTHESIS) SE DISPONÍVEL
+  // 1. TENTA NAVEGADOR NATIVO (SPEECH SYNTHESIS)
   if ('speechSynthesis' in window && window.speechSynthesis) {
     try {
       const ok = await new Promise((resolve) => {
@@ -92,11 +91,10 @@ async function playChunkWithFallback(chunkText) {
         utterance.onend = () => resolve(true);
         utterance.onerror = () => resolve(false);
 
-        // Timeout de proteção
         const timer = setTimeout(() => {
-          window.speechSynthesis.cancel();
+          try { window.speechSynthesis.cancel(); } catch (e) {}
           resolve(false);
-        }, 10000);
+        }, 8000);
 
         window.speechSynthesis.speak(utterance);
       });
@@ -109,26 +107,53 @@ async function playChunkWithFallback(chunkText) {
 
   if (shouldStop) return false;
 
-  // FALLBACK EM ÁUDIO STREAMING HD (STREAMELEMENTS PT-BR)
-  return new Promise((resolve) => {
-    try {
-      const encoded = encodeURIComponent(chunkText);
-      const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=${encoded}`;
-      
-      currentAudio = new Audio(audioUrl);
-      currentAudio.play().then(() => {
-        isPlaying = true;
-      }).catch(err => {
-        console.log('Erro ao iniciar áudio:', err);
-        resolve(false);
-      });
+  // 2. TENTA REPRODUÇÃO VIA ELEMENTO DE ÁUDIO HTML5 NO DOM
+  const audioEl = document.getElementById('globalAudioPlayer');
+  if (audioEl) {
+    return new Promise((resolve) => {
+      try {
+        const encoded = encodeURIComponent(chunkText);
+        const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=${encoded}`;
+        
+        audioEl.src = audioUrl;
+        
+        const onEnded = () => {
+          cleanup();
+          resolve(true);
+        };
+        
+        const onError = () => {
+          cleanup();
+          resolve(false);
+        };
 
-      currentAudio.onended = () => resolve(true);
-      currentAudio.onerror = () => resolve(false);
-    } catch (e) {
-      resolve(false);
-    }
-  });
+        const cleanup = () => {
+          audioEl.removeEventListener('ended', onEnded);
+          audioEl.removeEventListener('error', onError);
+        };
+
+        audioEl.addEventListener('ended', onEnded);
+        audioEl.addEventListener('error', onError);
+
+        audioEl.play().catch(err => {
+          console.log('Audio play error:', err);
+          cleanup();
+          resolve(false);
+        });
+
+        // Timeout de proteção
+        setTimeout(() => {
+          cleanup();
+          resolve(true);
+        }, 12000);
+
+      } catch (e) {
+        resolve(false);
+      }
+    });
+  }
+
+  return false;
 }
 
 export function stopAudio() {
@@ -139,10 +164,11 @@ export function stopAudio() {
     try { window.speechSynthesis.cancel(); } catch (e) {}
   }
 
-  if (currentAudio) {
+  const audioEl = document.getElementById('globalAudioPlayer');
+  if (audioEl) {
     try {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+      audioEl.pause();
+      audioEl.currentTime = 0;
     } catch (e) {}
   }
 }
