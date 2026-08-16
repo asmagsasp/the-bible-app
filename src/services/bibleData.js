@@ -280,7 +280,7 @@ export function searchBibleText(queryStr) {
 
   // 2. Busca por vocabulário e palavras-chave na lista completa de temas e versículos
   BIBLE_VOCABULARY_INDEX.forEach(item => {
-    const hasMatch = item.keywords.some(kw => queryNorm.includes(kw) || kw.includes(queryNorm)) || normalizeText(item.text).includes(queryNorm);
+    const hasMatch = item.keywords.some(kw => kw === queryNorm || (queryNorm.length >= 3 && kw.includes(queryNorm))) || normalizeText(item.text).includes(queryNorm);
     if (hasMatch && !addedRefs.has(item.ref)) {
       addedRefs.add(item.ref);
       const bookObj = BIBLE_BOOKS.find(b => b.id === item.bookId);
@@ -297,11 +297,11 @@ export function searchBibleText(queryStr) {
     }
   });
 
-  // 3. Busca extensiva em capítulos específicos e gerados
-  BIBLE_BOOKS.forEach(book => {
-    if (results.length >= 80) return;
-    const maxCaps = Math.min(book.chapters, 5);
-    for (let c = 1; c <= maxCaps; c++) {
+  // 3. Busca COMPLETA em TODOS os capítulos (1 até o fim) dos 73 livros da Bíblia
+  for (const book of BIBLE_BOOKS) {
+    if (results.length >= 150) break;
+    for (let c = 1; c <= book.chapters; c++) {
+      if (results.length >= 150) break;
       const verses = getChapterVerses(book.id, c);
       verses.forEach((vText, idx) => {
         const refStr = `${book.name} ${c}, ${idx + 1}`;
@@ -318,7 +318,7 @@ export function searchBibleText(queryStr) {
         }
       });
     }
-  });
+  }
 
   return results;
 }

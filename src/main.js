@@ -538,55 +538,74 @@ function setupEventListeners() {
 
   // BUSCA COMPLETA EM TODA A BÍBLIA (LIVROS, CAPÍTULOS E PALAVRAS DOS VERSÍCULOS)
   const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.trim();
-      if (query.length < 2) {
-        const searchView = document.getElementById('viewSearch');
-        if (searchView && !searchView.classList.contains('hidden')) {
-          switchView('viewHome');
-        }
-        return;
+  const searchIcon = document.querySelector('.search-icon');
+
+  const executeSearch = () => {
+    if (!searchInput) return;
+    const query = searchInput.value.trim();
+    if (query.length < 2) {
+      const searchView = document.getElementById('viewSearch');
+      if (searchView && !searchView.classList.contains('hidden')) {
+        switchView('viewHome');
       }
+      return;
+    }
 
-      switchView('viewSearch');
-      const container = document.getElementById('searchResultsList');
-      if (!container) return;
-      container.innerHTML = '';
+    switchView('viewSearch');
+    const container = document.getElementById('searchResultsList');
+    if (!container) return;
+    container.innerHTML = '';
 
-      const searchResults = searchBibleText(query);
-      const searchSub = document.getElementById('searchSubtitle');
-      if (searchSub) searchSub.textContent = `Encontrados ${searchResults.length} resultado(s) para "${query}" em toda a Bíblia`;
+    const searchResults = searchBibleText(query);
+    const searchSub = document.getElementById('searchSubtitle');
+    if (searchSub) searchSub.textContent = `Encontrados ${searchResults.length} resultado(s) para "${query}" em toda a Bíblia`;
 
-      if (searchResults.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0;">Nenhum versículo ou livro encontrado com "${query}".</div>`;
-        return;
+    if (searchResults.length === 0) {
+      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0;">Nenhum versículo ou livro encontrado com "${query}".</div>`;
+      return;
+    }
+
+    searchResults.forEach(res => {
+      const item = document.createElement('div');
+      item.className = 'verse-item';
+      item.style.cursor = 'pointer';
+
+      if (res.type === 'book') {
+        item.innerHTML = `
+          <div style="font-weight: 700; color: var(--accent-gold); font-size: 1.05rem;">
+            <i class="fas fa-book-bible"></i> ${res.title}
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">${res.subtitle}</div>
+        `;
+        item.onclick = () => openBookReader(res.book, 1);
+      } else {
+        item.innerHTML = `
+          <div style="font-weight: 700; color: var(--accent-gold); font-size: 0.9rem; margin-bottom: 2px;">
+            <i class="fas fa-bookmark"></i> ${res.title}
+          </div>
+          <div style="font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.5;">"${res.text}"</div>
+        `;
+        item.onclick = () => openBookReader(res.book, res.chapter, res.verseNum);
       }
-
-      searchResults.forEach(res => {
-        const item = document.createElement('div');
-        item.className = 'verse-item';
-        item.style.cursor = 'pointer';
-
-        if (res.type === 'book') {
-          item.innerHTML = `
-            <div style="font-weight: 700; color: var(--accent-gold); font-size: 1.05rem;">
-              <i class="fas fa-book-bible"></i> ${res.title}
-            </div>
-            <div style="font-size: 0.8rem; color: var(--text-secondary);">${res.subtitle}</div>
-          `;
-          item.onclick = () => openBookReader(res.book, 1);
-        } else {
-          item.innerHTML = `
-            <div style="font-weight: 700; color: var(--accent-gold); font-size: 0.9rem; margin-bottom: 2px;">
-              <i class="fas fa-bookmark"></i> ${res.title}
-            </div>
-            <div style="font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.5;">"${res.text}"</div>
-          `;
-          item.onclick = () => openBookReader(res.book, res.chapter, res.verseNum);
-        }
-        container.appendChild(item);
-      });
+      container.appendChild(item);
     });
+  };
+
+  if (searchInput) {
+    searchInput.addEventListener('input', executeSearch);
+    searchInput.addEventListener('change', executeSearch);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchInput.blur();
+        executeSearch();
+      }
+    });
+  }
+
+  if (searchIcon) {
+    searchIcon.style.pointerEvents = 'auto';
+    searchIcon.style.cursor = 'pointer';
+    searchIcon.addEventListener('click', executeSearch);
   }
 }
