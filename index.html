@@ -96,16 +96,23 @@
         <!-- Seletor de Capítulos -->
         <div class="chapters-grid" id="chaptersGrid"></div>
 
-        <!-- Barra de Ajuste de Leitura -->
+        <!-- Barra de Ações e Ajuste do Capítulo -->
         <div class="verse-reader-controls hidden" id="readerControls">
-          <div class="reader-control-group">
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Tamanho:</span>
-            <button class="btn-icon" id="btnFontMinus" style="width:30px;height:30px;"><i class="fas fa-minus"></i></button>
-            <button class="btn-icon" id="btnFontPlus" style="width:30px;height:30px;"><i class="fas fa-plus"></i></button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-bottom: 10px;">
+            <button class="btn-primary" id="btnListenChapter" style="flex: 1; padding: 10px; font-size: 0.85rem;">
+              <i class="fas fa-volume-high"></i> Ouvir Capítulo
+            </button>
+            <button class="btn-secondary" id="btnChapterHomily" style="flex: 1; padding: 10px; font-size: 0.85rem; border-color: #3b82f6; color: #60a5fa;">
+              <i class="fas fa-sparkles" style="color: #3b82f6;"></i> Reflexão com IA
+            </button>
           </div>
-          <button class="btn-secondary" id="btnListenChapter" style="padding: 6px 12px; font-size: 0.8rem;">
-            <i class="fas fa-volume-high" style="color: var(--accent-gold);"></i> Ouvir Capítulo
-          </button>
+          <div class="reader-control-group" style="width: 100%; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 8px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Tamanho do texto:</span>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-icon" id="btnFontMinus" style="width:34px;height:34px;" title="Diminuir Fonte"><i class="fas fa-minus"></i></button>
+              <button class="btn-icon" id="btnFontPlus" style="width:34px;height:34px;" title="Aumentar Fonte"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
         </div>
 
         <!-- Lista de Versículos -->

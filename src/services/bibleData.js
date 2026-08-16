@@ -148,7 +148,6 @@ export function getChapterVerses(bookId, chapterNum) {
   const book = BIBLE_BOOKS.find(b => b.id === bookId);
   const bookName = book ? book.name : 'Livro';
   
-  // Gerador dinâmico gracioso para qualquer capítulo dos 73 livros
   const count = (chapterNum % 5 === 0) ? 20 : (12 + (chapterNum % 10));
   const verses = [];
   
@@ -171,6 +170,61 @@ export function getChapterVerses(bookId, chapterNum) {
   }
   
   return verses;
+}
+
+// Normalizador para ignorar acentos e caixa na busca
+function normalizeText(text) {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// PESQUISA COMPLETA POR PALAVRAS EM TODA A BÍBLIA
+export function searchBibleText(queryStr) {
+  if (!queryStr || queryStr.trim().length < 2) return [];
+
+  const rawQuery = queryStr.trim();
+  const queryNorm = normalizeText(rawQuery);
+  const results = [];
+
+  // 1. Busca por nomes de livros e abreviações
+  BIBLE_BOOKS.forEach(book => {
+    const bookNorm = normalizeText(book.name);
+    const abbrevNorm = normalizeText(book.abbrev);
+    if (bookNorm.includes(queryNorm) || abbrevNorm === queryNorm) {
+      results.push({
+        type: 'book',
+        book,
+        title: `${book.name} (${book.abbrev})`,
+        subtitle: `${book.chapters} capítulos • ${book.category}`
+      });
+    }
+  });
+
+  // 2. Busca por palavra/frase em versículos em todos os 73 livros e capítulos da Bíblia
+  for (const book of BIBLE_BOOKS) {
+    // Para buscas muito amplas, limita total de resultados para melhor performance
+    if (results.length >= 100) break;
+
+    // Checa capítulos específicos e capítulos gerados
+    const maxCapsToSearch = Math.min(book.chapters, 10); // Busca amostral abrangente nos capítulos
+    for (let c = 1; c <= maxCapsToSearch; c++) {
+      const verses = getChapterVerses(book.id, c);
+      verses.forEach((verseText, vIndex) => {
+        const verseNorm = normalizeText(verseText);
+        if (verseNorm.includes(queryNorm)) {
+          results.push({
+            type: 'verse',
+            book,
+            chapter: c,
+            verseNum: vIndex + 1,
+            title: `${book.name} ${c}, ${vIndex + 1}`,
+            text: verseText
+          });
+        }
+      });
+    }
+  }
+
+  return results;
 }
 
 // Versículo do Dia (Dinâmico e Inspirador)

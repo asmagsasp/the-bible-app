@@ -1,5 +1,5 @@
 import '/src/styles/main.css';
-import { BIBLE_BOOKS, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite } from './services/bibleData.js';
+import { BIBLE_BOOKS, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite, searchBibleText } from './services/bibleData.js';
 import { getAIHomilyReflection, speakText, stopAudio, isAudioPlaying } from './services/homilyService.js';
 import { getReadingPlan, toggleDayCompleted, getPlanProgressPercentage } from './services/planService.js';
 import { initNativeFeatures, triggerHapticFeedback, shareContent, showNativeToast } from './services/nativeService.js';
@@ -13,7 +13,7 @@ const state = {
   theme: localStorage.getItem('avemaria_theme') || 'navy'
 };
 
-// INICIALIZAÇÃO DO APP (MÓDULO ES)
+// INICIALIZAÇÃO DO APP
 function initApp() {
   initNativeFeatures();
   applyTheme(state.theme);
@@ -107,9 +107,9 @@ function renderBooksGrid() {
 }
 
 // ABRIR LEITOR DE LIVRO E CAPÍTULOS
-function openBookReader(book) {
+function openBookReader(book, chapterToOpen = 1, scrollToVerse = null) {
   state.currentBook = book;
-  state.currentChapter = 1;
+  state.currentChapter = chapterToOpen;
   
   switchView('viewReader');
   const titleEl = document.getElementById('readerTitle');
@@ -118,10 +118,21 @@ function openBookReader(book) {
   if (subEl) subEl.textContent = `${book.chapters} Capítulos (${book.testament === 1 ? 'Antigo Testamento' : 'Novo Testamento'})`;
 
   renderChaptersGrid(book.chapters);
-  renderChapterVerses(book.id, 1);
+  renderChapterVerses(book.id, chapterToOpen);
+
+  if (scrollToVerse) {
+    setTimeout(() => {
+      const verseElem = document.getElementById(`verse_${scrollToVerse}`);
+      if (verseElem) {
+        verseElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        verseElem.classList.add('selected');
+        setTimeout(() => verseElem.classList.remove('selected'), 3000);
+      }
+    }, 300);
+  }
 }
 
-// RENDERIZAR BOTOES DE CAPÍTULOS
+// RENDERIZAR BOTÕES DE CAPÍTULOS
 function renderChaptersGrid(totalChapters) {
   const grid = document.getElementById('chaptersGrid');
   if (!grid) return;
@@ -160,6 +171,7 @@ function renderChapterVerses(bookId, chapterNum) {
     
     const vEl = document.createElement('div');
     vEl.className = 'verse-item';
+    vEl.id = `verse_${verseNum}`;
     vEl.style.fontSize = `${state.currentVerseFontSize}rem`;
     vEl.innerHTML = `
       <span class="verse-num">${verseNum}</span>
@@ -461,6 +473,18 @@ function setupEventListeners() {
     };
   }
 
+  // Botão Reflexão & Homilia com IA no Capítulo
+  const chapterHomilyBtn = document.getElementById('btnChapterHomily');
+  if (chapterHomilyBtn) {
+    chapterHomilyBtn.onclick = () => {
+      if (!state.currentBook) return;
+      triggerHapticFeedback();
+      const verses = getChapterVerses(state.currentBook.id, state.currentChapter);
+      const sampleVerse = verses[0] || 'Palavra de Deus para o seu dia.';
+      openHomilyModal(`${state.currentBook.name} Capítulo ${state.currentChapter}`, sampleVerse);
+    };
+  }
+
   // Navegação entre capítulos
   const prevChapterBtn = document.getElementById('btnPrevChapter');
   const nextChapterBtn = document.getElementById('btnNextChapter');
@@ -474,7 +498,7 @@ function setupEventListeners() {
     };
   }
 
-  // Ouvir Capítulo inteiro
+  // Ouvir Capítulo inteiro em áudio
   const listenChapterBtn = document.getElementById('btnListenChapter');
   if (listenChapterBtn) {
     listenChapterBtn.onclick = () => {
@@ -509,11 +533,11 @@ function setupEventListeners() {
     });
   });
 
-  // Busca em Tempo Real
+  // BUSCA COMPLETA EM TODA A BÍBLIA (LIVROS, CAPÍTULOS E PALAVRAS DOS VERSÍCULOS)
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.trim().toLowerCase();
+      const query = e.target.value.trim();
       if (query.length < 2) {
         const searchView = document.getElementById('viewSearch');
         if (searchView && !searchView.classList.contains('hidden')) {
@@ -527,19 +551,37 @@ function setupEventListeners() {
       if (!container) return;
       container.innerHTML = '';
 
-      const matchedBooks = BIBLE_BOOKS.filter(b => b.name.toLowerCase().includes(query) || b.abbrev.toLowerCase().includes(query));
+      const searchResults = searchBibleText(query);
       const searchSub = document.getElementById('searchSubtitle');
-      if (searchSub) searchSub.textContent = `Encontrados ${matchedBooks.length} livro(s) com "${query}"`;
+      if (searchSub) searchSub.textContent = `Encontrados ${searchResults.length} resultado(s) para "${query}" em toda a Bíblia`;
 
-      matchedBooks.forEach(b => {
+      if (searchResults.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0;">Nenhum versículo ou livro encontrado com "${query}".</div>`;
+        return;
+      }
+
+      searchResults.forEach(res => {
         const item = document.createElement('div');
         item.className = 'verse-item';
         item.style.cursor = 'pointer';
-        item.innerHTML = `
-          <div style="font-weight: 700; color: var(--accent-gold); font-size: 1rem;">${b.name} (${b.abbrev})</div>
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">${b.chapters} capítulos • ${b.category}</div>
-        `;
-        item.onclick = () => openBookReader(b);
+
+        if (res.type === 'book') {
+          item.innerHTML = `
+            <div style="font-weight: 700; color: var(--accent-gold); font-size: 1.05rem;">
+              <i class="fas fa-book-bible"></i> ${res.title}
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">${res.subtitle}</div>
+          `;
+          item.onclick = () => openBookReader(res.book, 1);
+        } else {
+          item.innerHTML = `
+            <div style="font-weight: 700; color: var(--accent-gold); font-size: 0.9rem; margin-bottom: 2px;">
+              <i class="fas fa-bookmark"></i> ${res.title}
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.5;">"${res.text}"</div>
+          `;
+          item.onclick = () => openBookReader(res.book, res.chapter, res.verseNum);
+        }
         container.appendChild(item);
       });
     });
