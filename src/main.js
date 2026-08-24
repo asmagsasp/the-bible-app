@@ -103,6 +103,39 @@ function updateUILS() {
   const heroDonateBtn = document.getElementById('btnHeroDonate');
   if (heroDonateBtn) heroDonateBtn.innerHTML = `<i class="fas fa-hand-holding-heart"></i> ${t('donateTitle')}`;
 
+  // Banner de Apoio (Home)
+  const bannerBadge = document.getElementById('bannerBadgeText');
+  if (bannerBadge) bannerBadge.innerHTML = `<i class="fas fa-heart"></i> ${t('bannerSupportTag')}`;
+
+  const bannerTitle = document.getElementById('bannerTitleText');
+  if (bannerTitle) bannerTitle.textContent = t('bannerSupportTitle');
+
+  const bannerDesc = document.getElementById('bannerDescText');
+  if (bannerDesc) bannerDesc.textContent = t('bannerSupportDesc');
+
+  const bannerBtn = document.getElementById('bannerBtnText');
+  if (bannerBtn) bannerBtn.textContent = t('bannerSupportBtn');
+
+  // Card de Apoio (Leitor)
+  const readerSupTitle = document.getElementById('readerSupportTitleText');
+  if (readerSupTitle) readerSupTitle.textContent = t('readerSupportTitle');
+
+  const readerSupDesc = document.getElementById('readerSupportDescText');
+  if (readerSupDesc) readerSupDesc.textContent = t('readerSupportDesc');
+
+  const readerSupBtn = document.getElementById('readerSupportBtnText');
+  if (readerSupBtn) readerSupBtn.textContent = t('readerSupportBtn');
+
+  // Modal Pix
+  const modalDonTitle = document.getElementById('modalDonateTitle');
+  if (modalDonTitle) modalDonTitle.textContent = t('donateTitle');
+
+  const modalDonDesc = document.getElementById('modalDonateDesc');
+  if (modalDonDesc) modalDonDesc.textContent = t('donateDesc');
+
+  const copyPixBtn = document.getElementById('btnCopyPix');
+  if (copyPixBtn) copyPixBtn.innerHTML = `<i class="far fa-copy"></i> ${t('copyPixKey')}`;
+
   const listenCapBtn = document.getElementById('btnListenChapter');
   if (listenCapBtn) listenCapBtn.innerHTML = `<i class="fas fa-volume-high"></i> ${t('listenChapter')}`;
 
@@ -503,10 +536,14 @@ function setupEventListeners() {
   const themeToggleBtn = document.getElementById('btnThemeToggle');
   if (themeToggleBtn) themeToggleBtn.onclick = cycleTheme;
 
-  // Botões do Modal Pix / Doação
+  // Botões do Modal Pix / Doação & Banner de Apoio
   const donateModal = document.getElementById('donateModal');
   const donateHeaderBtn = document.getElementById('btnDonateHeader');
   const donateHeroBtn = document.getElementById('btnHeroDonate');
+  const bannerDonateBtn = document.getElementById('btnBannerDonate');
+  const homeBannerEl = document.getElementById('homeSupportBanner');
+  const readerDonateBtn = document.getElementById('btnReaderDonate');
+  const bannerQuickCopyBtn = document.getElementById('btnBannerQuickCopy');
   
   const openDonate = () => {
     triggerHapticFeedback();
@@ -515,23 +552,64 @@ function setupEventListeners() {
   
   if (donateHeaderBtn) donateHeaderBtn.onclick = openDonate;
   if (donateHeroBtn) donateHeroBtn.onclick = openDonate;
+  if (bannerDonateBtn) {
+    bannerDonateBtn.onclick = (e) => {
+      e.stopPropagation();
+      openDonate();
+    };
+  }
+  if (readerDonateBtn) readerDonateBtn.onclick = openDonate;
   
+  if (homeBannerEl) {
+    homeBannerEl.onclick = (e) => {
+      // Se clicou no botão de cópia rápida, não abre o modal
+      if (e.target.closest('#btnBannerQuickCopy')) return;
+      openDonate();
+    };
+  }
+
+  const copyPixHandler = (e) => {
+    if (e) e.stopPropagation();
+    triggerHapticFeedback();
+    const pixKeyTextEl = document.getElementById('pixKeyText');
+    const key = pixKeyTextEl ? pixKeyTextEl.textContent.trim() : 'minhabibliacatolica1@gmail.com';
+    navigator.clipboard.writeText(key).then(() => {
+      showNativeToast(t('pixCopied'));
+    }).catch(() => {
+      showNativeToast(t('pixCopied'));
+    });
+  };
+
+  if (bannerQuickCopyBtn) bannerQuickCopyBtn.onclick = copyPixHandler;
+
   const closeDonateBtn = document.getElementById('btnCloseDonate');
   if (closeDonateBtn && donateModal) {
     closeDonateBtn.onclick = () => donateModal.classList.remove('active');
   }
+
+  // Fechar ao clicar no overlay de fundo do modal
+  if (donateModal) {
+    donateModal.onclick = (e) => {
+      if (e.target === donateModal) donateModal.classList.remove('active');
+    };
+  }
   
   const copyPixBtn = document.getElementById('btnCopyPix');
   if (copyPixBtn) {
-    copyPixBtn.onclick = () => {
-      triggerHapticFeedback();
-      const pixKeyTextEl = document.getElementById('pixKeyText');
-      if (pixKeyTextEl) {
-        navigator.clipboard.writeText(pixKeyTextEl.textContent);
-        showNativeToast('Chave Pix copiada com sucesso!');
-      }
-    };
+    copyPixBtn.onclick = copyPixHandler;
   }
+
+  // Seleção de Valor Sugerido no Modal (Pills)
+  const donationPills = document.querySelectorAll('.donation-pill');
+  donationPills.forEach(pill => {
+    pill.onclick = () => {
+      triggerHapticFeedback();
+      donationPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const amt = pill.getAttribute('data-amount');
+      showNativeToast(`Valor selecionado: R$ ${amt},00. Copie a chave Pix para transferir.`);
+    };
+  });
 
   // Botão Fechar Modal Homilia
   const closeHomilyBtn = document.getElementById('btnCloseHomily');

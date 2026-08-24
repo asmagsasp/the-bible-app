@@ -873,3 +873,274 @@ html, body {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
+
+/* ==========================================================================
+   BANNER DE APOIO AO PROJETO (EVANGELIZAÇÃO & MANUTENÇÃO SEM ANÚNCIOS)
+   ========================================================================== */
+
+.support-project-banner {
+  position: relative;
+  margin: 16px 0 24px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(30, 41, 59, 0.75) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  cursor: pointer;
+}
+
+[data-theme="sepia"] .support-project-banner {
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.12) 0%, rgba(245, 239, 227, 0.9) 100%);
+  border-color: rgba(180, 83, 9, 0.3);
+}
+
+[data-theme="light"] .support-project-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.support-project-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(245, 158, 11, 0.2);
+  border-color: var(--accent-gold);
+}
+
+.support-banner-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: bannerGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes bannerGlowPulse {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0.9; }
+}
+
+.support-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.support-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--accent-gold);
+  background: rgba(245, 158, 11, 0.15);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.support-banner-badge i {
+  font-size: 0.8rem;
+  color: var(--accent-gold);
+}
+
+.support-banner-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.support-banner-icon-box {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #b45309 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.support-banner-texts {
+  flex: 1;
+}
+
+.support-banner-title {
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.support-banner-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.support-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-support-cta {
+  flex: 1;
+  min-width: 170px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-support-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+}
+
+.btn-support-cta:active {
+  transform: scale(0.98);
+}
+
+.btn-support-quickcopy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-support-quickcopy:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+/* Card de Apoio no Fim do Leitor */
+.reader-support-card {
+  margin: 30px 0 20px;
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border: 1px dashed var(--accent-gold);
+  border-radius: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.reader-support-card .reader-support-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.reader-support-card h4 {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.reader-support-card p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  max-width: 320px;
+}
+
+/* Modal Pix & Doação Aprimorado */
+.donation-amounts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.donation-pill {
+  padding: 8px 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.donation-pill:hover,
+.donation-pill.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.pix-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 14px;
+  margin: 14px auto;
+  width: fit-content;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.pix-qr-container img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  display: block;
+}
+
+.pix-qr-caption {
+  font-size: 0.72rem;
+  color: #475569;
+  font-weight: 600;
+  margin-top: 4px;
+}
+

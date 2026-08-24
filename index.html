@@ -81,6 +81,38 @@
           </div>
         </div>
 
+        <!-- BANNER DE APOIO AO PROJETO (EVANGELIZAÇÃO & PIX) -->
+        <div class="support-project-banner" id="homeSupportBanner">
+          <div class="support-banner-glow"></div>
+          <div class="support-banner-header">
+            <div class="support-banner-badge" id="bannerBadgeText">
+              <i class="fas fa-heart"></i> Evangelização & Manutenção
+            </div>
+            <div style="font-size: 0.75rem; color: var(--accent-gold); font-weight: 700;">
+              <i class="fas fa-shield-halved"></i> 100% Sem Anúncios
+            </div>
+          </div>
+          
+          <div class="support-banner-body">
+            <div class="support-banner-icon-box">
+              <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <div class="support-banner-texts">
+              <h3 class="support-banner-title" id="bannerTitleText">Ajude a manter a Palavra de Deus ao alcance de todos</h3>
+              <p class="support-banner-desc" id="bannerDescText">Este aplicativo é gratuito e sem anúncios comerciais. Sua contribuição voluntária ajuda a custear servidores e novos recursos.</p>
+            </div>
+          </div>
+
+          <div class="support-banner-actions">
+            <button class="btn-support-cta" id="btnBannerDonate">
+              <i class="fas fa-qrcode"></i> <span id="bannerBtnText">Fazer uma Doação Pix</span>
+            </button>
+            <button class="btn-support-quickcopy" id="btnBannerQuickCopy" title="Copiar Chave Pix Diretamente">
+              <i class="far fa-copy"></i> Copiar Chave
+            </button>
+          </div>
+        </div>
+
         <!-- Abas Testamento -->
         <div class="testament-tabs">
           <button class="tab-btn active" data-testament="0">Todos (73)</button>
@@ -126,6 +158,18 @@
 
         <!-- Lista de Versículos -->
         <div class="verses-list" id="versesList"></div>
+
+        <!-- CARD DE APOIO NO LEITOR -->
+        <div class="reader-support-card" id="readerSupportCard">
+          <div class="reader-support-icon">
+            <i class="fas fa-hand-holding-heart"></i>
+          </div>
+          <h4 id="readerSupportTitleText">Gostou desta leitura sagrada?</h4>
+          <p id="readerSupportDescText">Ajude a manter o projeto no ar com qualquer contribuição voluntária via Pix.</p>
+          <button class="btn-primary" id="btnReaderDonate" style="padding: 8px 18px; font-size: 0.85rem;">
+            <i class="fas fa-hand-holding-heart"></i> <span id="readerSupportBtnText">Apoiar a Obra</span>
+          </button>
+        </div>
 
         <!-- Navegação de Capítulo Anterior / Próximo -->
         <div class="chapter-nav-bar hidden" id="chapterNavBar">
@@ -251,14 +295,31 @@
     <div class="modal-overlay" id="donateModal">
       <div class="modal-content">
         <button class="modal-close" id="btnCloseDonate"><i class="fas fa-times"></i></button>
-        <div style="text-align: center; margin-bottom: 16px;">
-          <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gold-light); color: var(--accent-gold); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px;">
+        <div style="text-align: center; margin-bottom: 12px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gold-light); color: var(--accent-gold); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 8px;">
             <i class="fas fa-hand-holding-heart"></i>
           </div>
-          <h2 style="font-family: var(--font-title); font-size: 1.25rem; color: var(--text-primary);">Apoie este Projeto</h2>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+          <h2 style="font-family: var(--font-title); font-size: 1.25rem; color: var(--text-primary);" id="modalDonateTitle">Apoie este Projeto</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;" id="modalDonateDesc">
             Sua doação voluntária ajuda a manter o aplicativo da Bíblia no ar, atualizado e 100% sem anúncios.
           </p>
+        </div>
+
+        <!-- Valores Sugeridos -->
+        <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-align: center; margin-top: 8px;">
+          Escolha um valor de coração ou doe qualquer quantia:
+        </div>
+        <div class="donation-amounts-grid">
+          <div class="donation-pill active" data-amount="2">R$ 2</div>
+          <div class="donation-pill" data-amount="5">R$ 5</div>
+          <div class="donation-pill" data-amount="10">R$ 10</div>
+          <div class="donation-pill" data-amount="20">R$ 20</div>
+        </div>
+
+        <!-- QR Code Pix -->
+        <div class="pix-qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=minhabibliacatolica1@gmail.com&color=0f172a" alt="QR Code Pix" loading="lazy" />
+          <span class="pix-qr-caption">Escaneie para doar via Pix</span>
         </div>
 
         <div class="pix-key-box">
@@ -269,7 +330,7 @@
         </div>
 
         <p style="font-size: 0.75rem; text-align: center; color: var(--text-muted);">
-          Copie a chave Pix (E-mail) acima e cole no aplicativo do seu banco. Deus abençoe!
+          Chave Pix (E-mail): <strong>minhabibliacatolica1@gmail.com</strong><br>Cole no app do seu banco. Que Deus multiplique suas bênçãos! 🙏
         </p>
       </div>
     </div>
