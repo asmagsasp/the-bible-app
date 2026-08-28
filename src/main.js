@@ -2,6 +2,7 @@ import '/src/styles/main.css';
 import { getBibleBooks, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite, searchBibleText } from './services/bibleData.js';
 import { getAIHomilyReflection, speakText, stopAudio, isAudioPlaying, unlockAudioContext } from './services/homilyService.js';
 import { getReadingPlan, toggleDayCompleted, getPlanProgressPercentage, getTodayDayOfYear, getMonthLabel } from './services/planService.js';
+import { getGalleryCategories, getGalleryItems } from './services/galleryData.js';
 import { initNativeFeatures, triggerHapticFeedback, shareContent, showNativeToast } from './services/nativeService.js';
 import { getLanguage, setLanguage, t } from './services/i18n.js';
 
@@ -14,7 +15,8 @@ const state = {
   theme: localStorage.getItem('avemaria_theme') || 'navy',
   planMonth: 0, // 0: Todos os Meses, 1..12
   planFilter: 'all', // 'all', 'pending', 'completed'
-  planSearch: ''
+  planSearch: '',
+  galleryCategory: 'all'
 };
 
 // INICIALIZAÇÃO DO APP
@@ -147,6 +149,12 @@ function updateUILS() {
 
   const favTitle = document.querySelector('#viewFavorites .view-header-title');
   if (favTitle) favTitle.textContent = t('favoritesTitle');
+
+  const galTitle = document.querySelector('#viewGallery .view-header-title');
+  if (galTitle) galTitle.textContent = t('galleryTitle');
+
+  const galSub = document.querySelector('#viewGallery .view-header-subtitle');
+  if (galSub) galSub.textContent = t('gallerySub');
 
   const planTitle = document.querySelector('#viewPlan .view-header-title');
   if (planTitle) planTitle.textContent = t('readingPlanTitle');
@@ -367,39 +375,187 @@ function navigateChapter(delta) {
   }
 }
 
-// RENDERIZAR GALERIA DE MEDITAÇÃO
+// RENDERIZAR ABAS DE CATEGORIAS DA GALERIA
+function renderGalleryCategoryTabs() {
+  const container = document.getElementById('galleryCategoryTabs');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const categories = getGalleryCategories();
+  const lang = getLanguage();
+
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = `gallery-cat-btn ${state.galleryCategory === cat.id ? 'active' : ''}`;
+    const label = cat[lang] || cat.pt;
+    btn.innerHTML = `<i class="${cat.icon}"></i> ${label}`;
+    btn.onclick = () => {
+      triggerHapticFeedback();
+      state.galleryCategory = cat.id;
+      renderGallery();
+    };
+    container.appendChild(btn);
+  });
+}
+
+// RENDERIZAR GALERIA DE MEDITAÇÃO COM IMAGENS E VERSÍCULOS
 function renderGallery() {
+  renderGalleryCategoryTabs();
   const container = document.getElementById('galleryGrid');
   if (!container) return;
   container.innerHTML = '';
 
-  const galleryItems = [
-    { text: "O Senhor é a minha luz e a minha salvação; a quem temerei?", ref: "Salmos 27, 1", bg: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)" },
-    { text: "Vinde a mim, todos vós que estais cansados e oprimidos, e eu vos aliviarei.", ref: "São Mateus 11, 28", bg: "linear-gradient(135deg, #311b92 0%, #4a148c 100%)" },
-    { text: "O amor tudo desculpa, tudo crê, tudo espera, tudo suporta.", ref: "1 Coríntios 13, 7", bg: "linear-gradient(135deg, #881337 0%, #4c0519 100%)" },
-    { text: "O Senhor te abençoe e te guarde; faça resplandecer o seu rosto sobre ti.", ref: "Números 6, 24-25", bg: "linear-gradient(135deg, #14532d 0%, #064e3b 100%)" }
-  ];
+  const lang = getLanguage();
+  const items = getGalleryItems(state.galleryCategory);
 
-  galleryItems.forEach(item => {
+  items.forEach(item => {
+    const langData = item[lang] || item.pt;
     const card = document.createElement('div');
     card.className = 'gallery-card';
     card.innerHTML = `
       <div class="gallery-card-img-box" style="background: ${item.bg}">
-        <div class="gallery-verse-text">"${item.text}"</div>
-        <div class="gallery-verse-ref">${item.ref}</div>
+        <img class="gallery-card-bg-img" src="${item.imageUrl}" alt="${langData.reference}" loading="lazy" />
+        <div class="gallery-card-overlay"></div>
+        <div class="gallery-card-content">
+          <div class="gallery-verse-text">"${langData.text}"</div>
+          <div class="gallery-verse-ref"><i class="fas fa-cross"></i> ${langData.reference}</div>
+        </div>
       </div>
       <div class="gallery-card-body">
-        <button class="btn-secondary btn-share-g" style="padding: 6px 12px; font-size: 0.8rem;">
+        <button class="btn-primary btn-share-g" style="padding: 6px 12px; font-size: 0.78rem;">
           <i class="fab fa-whatsapp"></i> Compartilhar
         </button>
+        <div class="gallery-card-actions">
+          <button class="btn-card-action btn-audio-g" title="Ouvir Áudio">
+            <i class="fas fa-volume-high"></i>
+          </button>
+          <button class="btn-card-action btn-homily-g" title="Reflexão com IA">
+            <i class="fas fa-sparkles" style="color: #3b82f6;"></i>
+          </button>
+          <button class="btn-card-action btn-read-g" title="Ler Capítulo">
+            <i class="fas fa-book-open"></i>
+          </button>
+        </div>
       </div>
     `;
-    card.querySelector('.btn-share-g').onclick = () => {
-      triggerHapticFeedback();
-      shareContent(item.ref, `"${item.text}" (${item.ref})`, 'https://bibliasagradaavemaria.com.br');
-    };
+
+    // Clique na imagem para abrir modal em tela cheia
+    const imgBox = card.querySelector('.gallery-card-img-box');
+    if (imgBox) {
+      imgBox.onclick = () => {
+        triggerHapticFeedback();
+        openGalleryModal(item);
+      };
+    }
+
+    // Compartilhar
+    const shareBtn = card.querySelector('.btn-share-g');
+    if (shareBtn) {
+      shareBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerHapticFeedback();
+        shareContent(
+          `Meditação Sagrada - ${langData.reference}`,
+          `"${langData.text}" (${langData.reference}) - Bíblia Ave Maria`,
+          'https://bibliasagradaavemaria.com.br'
+        );
+      };
+    }
+
+    // Áudio
+    const audioBtn = card.querySelector('.btn-audio-g');
+    if (audioBtn) {
+      audioBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerHapticFeedback();
+        startAudioTrack(langData.reference, langData.text);
+      };
+    }
+
+    // Reflexão IA
+    const homilyBtn = card.querySelector('.btn-homily-g');
+    if (homilyBtn) {
+      homilyBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerHapticFeedback();
+        openHomilyModal(langData.reference, langData.text);
+      };
+    }
+
+    // Ler Capítulo
+    const readBtn = card.querySelector('.btn-read-g');
+    if (readBtn) {
+      readBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerHapticFeedback();
+        const books = getBibleBooks();
+        const book = books.find(b => b.id === item.bookId) || books[0];
+        openBookReader(book, item.chapter || 1, item.verseNum || null);
+      };
+    }
+
     container.appendChild(card);
   });
+}
+
+// MODAL DE VISUALIZAÇÃO DA GALERIA
+function openGalleryModal(item) {
+  const lang = getLanguage();
+  const langData = item[lang] || item.pt;
+
+  const modal = document.getElementById('galleryModal');
+  const imgEl = document.getElementById('galleryModalImg');
+  const verseEl = document.getElementById('galleryModalVerse');
+  const refEl = document.getElementById('galleryModalRef');
+  const imgBox = document.getElementById('galleryModalImgBox');
+
+  if (imgEl) imgEl.src = item.imageUrl;
+  if (verseEl) verseEl.textContent = `"${langData.text}"`;
+  if (refEl) refEl.textContent = langData.reference;
+  if (imgBox) imgBox.style.background = item.bg;
+
+  if (modal) modal.classList.add('active');
+
+  const shareBtn = document.getElementById('btnGalleryModalShare');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      triggerHapticFeedback();
+      shareContent(
+        `Meditação Sagrada - ${langData.reference}`,
+        `"${langData.text}" (${langData.reference}) - Bíblia Ave Maria`,
+        'https://bibliasagradaavemaria.com.br'
+      );
+    };
+  }
+
+  const audioBtn = document.getElementById('btnGalleryModalAudio');
+  if (audioBtn) {
+    audioBtn.onclick = () => {
+      triggerHapticFeedback();
+      startAudioTrack(langData.reference, langData.text);
+      if (modal) modal.classList.remove('active');
+    };
+  }
+
+  const homilyBtn = document.getElementById('btnGalleryModalHomily');
+  if (homilyBtn) {
+    homilyBtn.onclick = () => {
+      triggerHapticFeedback();
+      if (modal) modal.classList.remove('active');
+      openHomilyModal(langData.reference, langData.text);
+    };
+  }
+
+  const readBtn = document.getElementById('btnGalleryModalRead');
+  if (readBtn) {
+    readBtn.onclick = () => {
+      triggerHapticFeedback();
+      if (modal) modal.classList.remove('active');
+      const books = getBibleBooks();
+      const book = books.find(b => b.id === item.bookId) || books[0];
+      openBookReader(book, item.chapter || 1, item.verseNum || null);
+    };
+  }
 }
 
 // RENDERIZAR ABAS DE MESES DO PLANO (JAN A DEZ)
@@ -626,6 +782,7 @@ function switchView(targetViewId) {
     }
   });
 
+  if (targetViewId === 'viewGallery') renderGallery();
   if (targetViewId === 'viewFavorites') renderFavorites();
   if (targetViewId === 'viewPlan') renderPlan();
 
@@ -648,6 +805,7 @@ function setupEventListeners() {
       renderHeroVerse();
       renderBooksGrid();
       renderPlan();
+      renderGallery();
       if (state.currentBook) {
         const books = getBibleBooks();
         const updatedBook = books.find(b => b.id === state.currentBook.id) || books[0];
@@ -740,6 +898,18 @@ function setupEventListeners() {
   const homilyModal = document.getElementById('homilyModal');
   if (closeHomilyBtn && homilyModal) {
     closeHomilyBtn.onclick = () => homilyModal.classList.remove('active');
+  }
+
+  // Botão Fechar Modal Galeria
+  const closeGalleryBtn = document.getElementById('btnCloseGalleryModal');
+  const galleryModal = document.getElementById('galleryModal');
+  if (closeGalleryBtn && galleryModal) {
+    closeGalleryBtn.onclick = () => galleryModal.classList.remove('active');
+  }
+  if (galleryModal) {
+    galleryModal.onclick = (e) => {
+      if (e.target === galleryModal) galleryModal.classList.remove('active');
+    };
   }
 
   // Botão Parar Áudio
