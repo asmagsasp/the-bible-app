@@ -69,7 +69,10 @@
           <p class="hero-text" id="heroText">Carregando versículo...</p>
           <div class="hero-ref" id="heroRef"></div>
           <div class="hero-actions">
-            <button class="btn-primary" id="btnHeroShare">
+            <button class="btn-primary" id="btnHeroRead">
+              <i class="fas fa-book-open"></i> Ler Capítulo
+            </button>
+            <button class="btn-secondary" id="btnHeroShare">
               <i class="fab fa-whatsapp"></i> Compartilhar
             </button>
             <button class="btn-secondary" id="btnHeroHomily">
@@ -198,12 +201,34 @@
           </div>
         </div>
 
+        <!-- Progresso e Ação de Leitura de Hoje -->
         <div class="plan-progress-card">
-          <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Seu Progresso</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Seu Progresso Anual</div>
+            <button class="btn-today-shortcut" id="btnGoToToday">
+              <i class="fas fa-calendar-day"></i> Leitura de Hoje
+            </button>
+          </div>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="planProgressFill" style="width: 0%;"></div>
           </div>
           <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-gold);" id="planProgressText">0% concluído</div>
+        </div>
+
+        <!-- Seletor de Meses (Jan a Dez) -->
+        <div class="plan-months-tabs" id="planMonthsTabs"></div>
+
+        <!-- Filtros de Status e Busca no Plano -->
+        <div class="plan-controls-row">
+          <div class="plan-filter-pills">
+            <button class="plan-pill active" data-filter="all">Todos</button>
+            <button class="plan-pill" data-filter="pending">Pendentes</button>
+            <button class="plan-pill" data-filter="completed">Concluídos</button>
+          </div>
+          <div class="plan-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="planSearchInput" placeholder="Buscar dia ou livro..." />
+          </div>
         </div>
 
         <div class="plan-days-list" id="planDaysList"></div>

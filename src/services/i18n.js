@@ -43,7 +43,14 @@ export const TRANSLATIONS = {
     navSearch: "Busca",
     shareVerse: "Compartilhar Versículo",
     close: "Fechar",
-    day: "Dia"
+    day: "Dia",
+    goToToday: "Leitura de Hoje",
+    allMonths: "Todos os Meses",
+    filterAll: "Todos",
+    filterPending: "Pendentes",
+    filterCompleted: "Concluídos",
+    readNow: "Ler",
+    searchPlanPlaceholder: "Filtrar dia ou livro (ex: Gênesis, Dia 50)..."
   },
   en: {
     appTitle: "Holy Catholic Bible",
@@ -87,7 +94,14 @@ export const TRANSLATIONS = {
     navSearch: "Search",
     shareVerse: "Share Verse",
     close: "Close",
-    day: "Day"
+    day: "Day",
+    goToToday: "Today's Reading",
+    allMonths: "All Months",
+    filterAll: "All",
+    filterPending: "Pending",
+    filterCompleted: "Completed",
+    readNow: "Read",
+    searchPlanPlaceholder: "Filter day or book (e.g. Genesis, Day 50)..."
   },
   es: {
     appTitle: "Santa Biblia Católica",
@@ -131,11 +145,18 @@ export const TRANSLATIONS = {
     navSearch: "Buscar",
     shareVerse: "Compartir Versículo",
     close: "Cerrar",
-    day: "Día"
+    day: "Día",
+    goToToday: "Lectura de Hoy",
+    allMonths: "Todos los Meses",
+    filterAll: "Todos",
+    filterPending: "Pendientes",
+    filterCompleted: "Completados",
+    readNow: "Leer",
+    searchPlanPlaceholder: "Filtrar día o libro (ej: Génesis, Día 50)..."
   }
 };
 
-let currentLanguage = localStorage.getItem('biblia_lang') || 'pt';
+let currentLanguage = (typeof localStorage !== 'undefined' && localStorage.getItem('biblia_lang')) || 'pt';
 
 export function getLanguage() {
   return currentLanguage;
@@ -144,7 +165,9 @@ export function getLanguage() {
 export function setLanguage(lang) {
   if (['pt', 'en', 'es'].includes(lang)) {
     currentLanguage = lang;
-    localStorage.setItem('biblia_lang', lang);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('biblia_lang', lang);
+    }
   }
 }
 

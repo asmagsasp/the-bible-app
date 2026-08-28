@@ -1,7 +1,7 @@
 import '/src/styles/main.css';
 import { getBibleBooks, getChapterVerses, getVerseOfTheDay, getFavorites, toggleFavorite, isFavorite, searchBibleText } from './services/bibleData.js';
 import { getAIHomilyReflection, speakText, stopAudio, isAudioPlaying, unlockAudioContext } from './services/homilyService.js';
-import { getReadingPlan, toggleDayCompleted, getPlanProgressPercentage } from './services/planService.js';
+import { getReadingPlan, toggleDayCompleted, getPlanProgressPercentage, getTodayDayOfYear, getMonthLabel } from './services/planService.js';
 import { initNativeFeatures, triggerHapticFeedback, shareContent, showNativeToast } from './services/nativeService.js';
 import { getLanguage, setLanguage, t } from './services/i18n.js';
 
@@ -11,7 +11,10 @@ const state = {
   currentBook: null,
   currentChapter: 1,
   currentVerseFontSize: 1.125, // rem
-  theme: localStorage.getItem('avemaria_theme') || 'navy'
+  theme: localStorage.getItem('avemaria_theme') || 'navy',
+  planMonth: 0, // 0: Todos os Meses, 1..12
+  planFilter: 'all', // 'all', 'pending', 'completed'
+  planSearch: ''
 };
 
 // INICIALIZAÇÃO DO APP
@@ -150,6 +153,19 @@ function updateUILS() {
 
   const planSub = document.querySelector('#viewPlan .view-header-subtitle');
   if (planSub) planSub.textContent = t('readingPlanSub');
+
+  const btnTodayShortcut = document.getElementById('btnGoToToday');
+  if (btnTodayShortcut) btnTodayShortcut.innerHTML = `<i class="fas fa-calendar-day"></i> ${t('goToToday')}`;
+
+  const planSearchInp = document.getElementById('planSearchInput');
+  if (planSearchInp) planSearchInp.placeholder = t('searchPlanPlaceholder');
+
+  const pills = document.querySelectorAll('.plan-pill');
+  if (pills.length >= 3) {
+    pills[0].textContent = t('filterAll');
+    pills[1].textContent = t('filterPending');
+    pills[2].textContent = t('filterCompleted');
+  }
 }
 
 // RENDEREIZAR HERO - VERSÍCULO DO DIA
@@ -161,6 +177,16 @@ function renderHeroVerse() {
   if (heroTextEl) heroTextEl.textContent = `"${v.text}"`;
   if (heroRefEl) heroRefEl.textContent = v.reference;
   
+  const readBtn = document.getElementById('btnHeroRead');
+  if (readBtn) {
+    readBtn.onclick = () => {
+      triggerHapticFeedback();
+      const books = getBibleBooks();
+      const targetBook = books.find(b => b.id === v.bookId) || books.find(b => v.reference.toLowerCase().includes(b.name.toLowerCase())) || books[0];
+      openBookReader(targetBook, v.chapter || 1, v.verseNum || null);
+    };
+  }
+
   const shareBtn = document.getElementById('btnHeroShare');
   if (shareBtn) {
     shareBtn.onclick = () => {
@@ -376,9 +402,39 @@ function renderGallery() {
   });
 }
 
-// RENDERIZAR PLANO DE LEITURA 365 DIAS
+// RENDERIZAR ABAS DE MESES DO PLANO (JAN A DEZ)
+function renderPlanMonthsTabs() {
+  const container = document.getElementById('planMonthsTabs');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = `plan-month-btn ${state.planMonth === 0 ? 'active' : ''}`;
+  allBtn.textContent = t('allMonths');
+  allBtn.onclick = () => {
+    triggerHapticFeedback();
+    state.planMonth = 0;
+    renderPlan();
+  };
+  container.appendChild(allBtn);
+
+  for (let m = 1; m <= 12; m++) {
+    const btn = document.createElement('button');
+    btn.className = `plan-month-btn ${state.planMonth === m ? 'active' : ''}`;
+    btn.textContent = getMonthLabel(m);
+    btn.onclick = () => {
+      triggerHapticFeedback();
+      state.planMonth = m;
+      renderPlan();
+    };
+    container.appendChild(btn);
+  }
+}
+
+// RENDERIZAR PLANO DE LEITURA 365 DIAS (73 LIVROS)
 function renderPlan() {
-  const planDays = getReadingPlan();
+  renderPlanMonthsTabs();
+  const allPlanDays = getReadingPlan();
   const container = document.getElementById('planDaysList');
   if (!container) return;
   container.innerHTML = '';
@@ -386,28 +442,95 @@ function renderPlan() {
   const pct = getPlanProgressPercentage();
   const fillEl = document.getElementById('planProgressFill');
   const txtEl = document.getElementById('planProgressText');
+  const completedCount = allPlanDays.filter(d => d.completed).length;
   if (fillEl) fillEl.style.width = `${pct}%`;
-  if (txtEl) txtEl.textContent = `${pct}% concluído (${planDays.filter(d => d.completed).length}/365 dias)`;
+  if (txtEl) txtEl.textContent = `${pct}% ${t('completed')} (${completedCount}/365 ${t('day')}s)`;
 
-  // Renderiza os primeiros 30 dias para alta performance
-  planDays.slice(0, 30).forEach(day => {
+  const todayNum = getTodayDayOfYear();
+
+  // Filtragem dos dias
+  let filtered = allPlanDays;
+
+  // Filtro de Mês
+  if (state.planMonth > 0) {
+    filtered = filtered.filter(d => d.month === state.planMonth);
+  }
+
+  // Filtro de Status
+  if (state.planFilter === 'pending') {
+    filtered = filtered.filter(d => !d.completed);
+  } else if (state.planFilter === 'completed') {
+    filtered = filtered.filter(d => d.completed);
+  }
+
+  // Filtro de Busca
+  if (state.planSearch && state.planSearch.trim().length > 0) {
+    const q = state.planSearch.trim().toLowerCase();
+    filtered = filtered.filter(d => 
+      d.title.toLowerCase().includes(q) || 
+      d.read.toLowerCase().includes(q) || 
+      `dia ${d.day}`.includes(q) || 
+      `${d.day}` === q
+    );
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0;">Nenhum dia encontrado para os filtros selecionados.</div>`;
+    return;
+  }
+
+  filtered.forEach(day => {
+    const isToday = (day.day === todayNum);
     const item = document.createElement('div');
-    item.className = `plan-day-item ${day.completed ? 'completed' : ''}`;
+    item.className = `plan-day-item ${day.completed ? 'completed' : ''} ${isToday ? 'today' : ''}`;
+    item.id = `plan_day_${day.day}`;
+    
     item.innerHTML = `
-      <div>
-        <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">${day.title}</div>
-        <div style="font-size: 0.8rem; color: var(--accent-gold); margin-top: 2px;">${day.read}</div>
+      <div class="plan-day-info">
+        <div class="plan-day-header-tags">
+          <span class="plan-day-badge ${isToday ? 'today-badge' : ''}">
+            ${isToday ? '<i class="fas fa-star"></i> ' : ''}${t('day')} ${day.day} • ${getMonthLabel(day.month)}
+          </span>
+        </div>
+        <div class="plan-day-title">${day.title}</div>
+        <div class="plan-day-read"><i class="fas fa-book-bible"></i> ${day.read}</div>
       </div>
-      <div class="plan-checkbox">
-        ${day.completed ? '<i class="fas fa-check"></i>' : ''}
+      <div class="plan-day-actions">
+        <button class="btn-plan-read" title="${t('readNow')}">
+          <i class="fas fa-book-open"></i> ${t('readNow')}
+        </button>
+        <button class="plan-checkbox-btn" title="Marcar como lido">
+          <div class="plan-checkbox">
+            ${day.completed ? '<i class="fas fa-check"></i>' : ''}
+          </div>
+        </button>
       </div>
     `;
-    item.onclick = () => {
-      triggerHapticFeedback();
-      const isDone = toggleDayCompleted(day.day);
-      renderPlan();
-      showNativeToast(isDone ? 'Dia concluído!' : 'Dia desmarcado.');
-    };
+
+    // Ação de Ler o Capítulo no Leitor
+    const readBtn = item.querySelector('.btn-plan-read');
+    if (readBtn) {
+      readBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerHapticFeedback();
+        const books = getBibleBooks();
+        const book = books.find(b => b.id === day.bookId) || books[0];
+        openBookReader(book, day.chapter || 1);
+      };
+    }
+
+    // Ação de Marcar / Desmarcar como concluído
+    const chkBtn = item.querySelector('.plan-checkbox-btn');
+    if (chkBtn) {
+      chkBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerHapticFeedback();
+        const isDone = toggleDayCompleted(day.day);
+        renderPlan();
+        showNativeToast(isDone ? `Dia ${day.day} concluído!` : `Dia ${day.day} desmarcado.`);
+      };
+    }
+
     container.appendChild(item);
   });
 }
@@ -524,6 +647,7 @@ function setupEventListeners() {
       updateUILS();
       renderHeroVerse();
       renderBooksGrid();
+      renderPlan();
       if (state.currentBook) {
         const books = getBibleBooks();
         const updatedBook = books.find(b => b.id === state.currentBook.id) || books[0];
@@ -782,5 +906,53 @@ function setupEventListeners() {
     searchIcon.style.pointerEvents = 'auto';
     searchIcon.style.cursor = 'pointer';
     searchIcon.addEventListener('click', executeSearch);
+  }
+
+  // CONTROLES DO PLANO DE LEITURA 365 DIAS
+  const btnGoToToday = document.getElementById('btnGoToToday');
+  if (btnGoToToday) {
+    btnGoToToday.onclick = () => {
+      triggerHapticFeedback();
+      const todayNum = getTodayDayOfYear();
+      const planDays = getReadingPlan();
+      const todayItem = planDays.find(d => d.day === todayNum) || planDays[0];
+      state.planMonth = todayItem.month;
+      state.planFilter = 'all';
+      state.planSearch = '';
+      
+      const searchInp = document.getElementById('planSearchInput');
+      if (searchInp) searchInp.value = '';
+      document.querySelectorAll('.plan-pill').forEach(p => p.classList.toggle('active', p.getAttribute('data-filter') === 'all'));
+
+      renderPlan();
+
+      setTimeout(() => {
+        const el = document.getElementById(`plan_day_${todayNum}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 150);
+      showNativeToast(`Leitura de hoje: Dia ${todayNum}`);
+    };
+  }
+
+  // Filtros de Status (Todos, Pendentes, Concluídos)
+  document.querySelectorAll('.plan-pill').forEach(pill => {
+    pill.onclick = () => {
+      triggerHapticFeedback();
+      document.querySelectorAll('.plan-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      state.planFilter = pill.getAttribute('data-filter');
+      renderPlan();
+    };
+  });
+
+  // Campo de Busca no Plano de Leitura
+  const planSearchInput = document.getElementById('planSearchInput');
+  if (planSearchInput) {
+    planSearchInput.addEventListener('input', () => {
+      state.planSearch = planSearchInput.value;
+      renderPlan();
+    });
   }
 }

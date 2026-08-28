@@ -10,3 +10,5 @@ android/.gradle/
 android/app/build/outputs/
 ios/App/Pods/
 ios/App/DerivedData/
+apk/
+*.apk

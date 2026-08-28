@@ -1,6 +1,7 @@
 // BÍBLIA SAGRADA EDIÇÃO CATÓLICA TRILÍNGUE (PORTUGUÊS 🇧🇷, INGLÊS 🇺🇸, ESPANHOL 🇪🇸) - 73 LIVROS COMPLETOS
 
 import { getLanguage } from './i18n.js';
+import { DAILY_VERSES } from './dailyVerseData.js';
 
 export const RAW_BIBLE_BOOKS = [
   // ANTIGO TESTAMENTO (46 Livros)
@@ -171,15 +172,25 @@ export function getChapterVerses(bookId, chapterNum) {
   return verses;
 }
 
-// VERSÍCULO DO DIA MULTILÍNGUE
-export function getVerseOfTheDay() {
-  const verses = {
-    pt: { reference: "Salmos 23, 1-2", text: "O Senhor é o meu pastor, nada me faltará. Em verdes prados me faz descansar." },
-    en: { reference: "Psalms 23, 1-2", text: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures." },
-    es: { reference: "Salmos 23, 1-2", text: "El Señor es mi pastor, nada me falta. En verdes prados me hace descansar." }
-  };
+// VERSÍCULO DO DIA MULTILÍNGUE COM ATUALIZAÇÃO DIÁRIA AUTOMÁTICA
+export function getVerseOfTheDay(customDate = new Date()) {
   const lang = getLanguage();
-  return verses[lang] || verses.pt;
+  const start = new Date(customDate.getFullYear(), 0, 0);
+  const diff = (customDate - start) + ((start.getTimezoneOffset() - customDate.getTimezoneOffset()) * 60 * 1000);
+  const oneDay = 1000 * 60 * 60 * 24;
+  const dayOfYear = Math.floor(diff / oneDay);
+  const index = Math.abs((dayOfYear - 1)) % DAILY_VERSES.length;
+  const v = DAILY_VERSES[index] || DAILY_VERSES[0];
+  const langData = v[lang] || v.pt;
+
+  return {
+    day: v.day,
+    bookId: v.bookId,
+    chapter: v.chapter,
+    verseNum: v.verseNum,
+    reference: langData.reference,
+    text: langData.text
+  };
 }
 
 function normalizeText(text) {

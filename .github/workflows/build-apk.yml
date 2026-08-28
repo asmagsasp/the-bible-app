@@ -59,9 +59,10 @@ jobs:
       - name: Publicar GitHub Release com APK para Download Direto
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "Bíblia Sagrada Ave Maria v1.0.0 (APK Android)"
-          body: "Clique no arquivo biblia-ave-maria.apk abaixo para baixar e instalar diretamente no celular Android."
+          tag_name: latest
+          name: "Bíblia Sagrada Ave Maria (APK Android)"
+          body: "Versão atualizada da Bíblia Sagrada Católica Ave Maria. Baixe o arquivo **biblia-ave-maria.apk** abaixo para instalar diretamente no celular Android."
           files: biblia-ave-maria.apk
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
